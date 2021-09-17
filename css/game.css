@@ -1,0 +1,82 @@
+* {
+    padding: 0;
+    margin: 0;
+    font-family: 'Nunito', sans-serif;
+    color: #000;
+}
+
+body {
+    background-image: url(../img/library.jpg);
+    height: 100vh;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+}
+
+h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+}
+
+h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+}
+
+.btn-outline-primary {
+    border-color: #978D6C;
+    color: #978D6C;
+    border-width: 3px;
+    border-radius: 15px;
+}
+
+.btn-outline-primary:hover {
+    background-color: #534a36;
+    border-color: #534a36;
+    color: #978D6C;
+}
+
+.btn-outline-dark {
+    border-color: #000;
+    color: #000;
+}
+
+.btn-outline-dark:hover {
+    background-color: #534a36;
+    border-color: #000;
+    color: #000;
+}
+
+.border {
+    border-color: #978D6C !important;
+    width: 30%;
+    margin: 2% auto;
+}
+
+/* Game Page */
+
+.gameimg {
+    background-image: url(../img/openBook.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 100vh;
+}
+
+.gameContent {
+    padding-top: 6%;
+    margin-right: 22%;
+    width: 25%;
+}
+
+
+.choices .btn {
+    width: 100%;
+    text-align: left;
+    margin-top: 3%;
+}
