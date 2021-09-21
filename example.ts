@@ -11,7 +11,7 @@ interface Option {
 }
 let inventory = {
     add: function (item: any) {
-
+        
     }
 }
 let scenes = {
@@ -477,6 +477,13 @@ if (randomOutcome1 === scenes.timeArtifact) {
 else {
     randomOutcome1 = scenes.artifactChamberRejection
 }
+let randomLeads1:string
+if (randomOutcome1 === scenes.timeArtifact) {
+    randomLeads1 = ' '
+}
+else {
+    randomLeads1 = ' '
+}
 
 let randomPasswordOutcome2 = [scenes.timeArtifact, scenes.artifactChamberRejection]
 let randomOutcome2 = randomPasswordOutcome2[Math.floor(Math.random() * randomPasswordOutcome2.length)]
@@ -485,6 +492,13 @@ if (randomOutcome2 === scenes.timeArtifact) {
 }
 else {
     randomOutcome2 = scenes.artifactChamberRejection
+}
+let randomLeads2:string
+if (randomOutcome2 === scenes.timeArtifact) {
+    randomLeads2 = ' '
+}
+else {
+    randomLeads2 = ' '
 }
 
 let randomPasswordOutcome3 = [scenes.timeArtifact, scenes.artifactChamberRejection]
@@ -495,6 +509,13 @@ if (randomOutcome3 === scenes.timeArtifact) {
 else {
     randomOutcome3 = scenes.artifactChamberRejection
 }
+let randomLeads3:string
+if (randomOutcome3 === scenes.timeArtifact) {
+    randomLeads3 = ' '
+}
+else {
+    randomLeads3 = ' '
+}
 
 let randomPasswordOutcome4 = [scenes.timeArtifact, scenes.artifactChamberRejection]
 let randomOutcome4 = randomPasswordOutcome4[Math.floor(Math.random() * randomPasswordOutcome4.length)]
@@ -504,6 +525,13 @@ if (randomOutcome4 === scenes.timeArtifact) {
 else {
     randomOutcome4 = scenes.artifactChamberRejection
 }
+let randomLeads4:string
+if (randomOutcome4 === scenes.timeArtifact) {
+    randomLeads4 = ' '
+}
+else {
+    randomLeads4 = ' '
+}
 
 let randomPasswordOutcome5 = [scenes.timeArtifact, scenes.artifactChamberRejection]
 let randomOutcome5 = randomPasswordOutcome5[Math.floor(Math.random() * randomPasswordOutcome5.length)]
@@ -512,6 +540,13 @@ if (randomOutcome5 === scenes.timeArtifact) {
 }
 else {
     randomOutcome5 = scenes.artifactChamberRejection
+}
+let randomLeads5:string
+if (randomOutcome5 === scenes.timeArtifact) {
+    randomLeads5 = ' '
+}
+else {
+    randomLeads5 = ' '
 }
 
 function getSceneId(sceneFunction: () => Scene): string | null {
