@@ -61,7 +61,7 @@ h3 {
 }
 
 .btn {
-    margin: 1% 0;
+    margin: 3% 0;
 }
 
 .border {
@@ -97,16 +97,10 @@ h3 {
 
 .book {
     height: 90%;
-    max-height: 600px;
+    max-height: 800px;
     min-height: 300px;
-    width: 60%;
-    background-image: 
-      linear-gradient(
-        90deg,
-        hsla(30,40%,50%,.6),
-        hsla(30,40%,20%,.9),
-        hsla(30,40%,50%,.4) 90%
-        ),
+    width: 70%;
+    background-image:
       url('http://inspirationhut3.inspirationhut.netdna-cdn.com/wp-content/uploads/2012/11/Old-Paper-Texture-3.jpg');
     position: absolute;
     top: 0; 
@@ -163,41 +157,6 @@ h3 {
 .flipped > [class*='side'] {
       pointer-events: auto;
 }
-
-.page:after {
-    width: 100px;
-    height: 50px;
-    background-color: #555;
-    position: absolute;
-    top: 0; bottom: 0; right: -100px;
-    margin: auto;
-    color: white;
-    text-shadow: 0 -1px 0 #222;
-    line-height: 50px;
-    text-align: center;
-    content: 'next-page';
-    animation: hide .8s linear;
-}
-
-.page.flipped:after {
-      content: 'prev-page';
-      transform:
-        rotateY(180deg);
-      pointer-events: auto;
-}
-
-/* .side-1 {
-    position: relative; 
-    border: 1px solid black;
-}
-
-.absolute {
-    position: absolute; 
-    bottom: 0; 
-    width: 100%; 
-    height: 50px; 
-    border: 1px solid red;
-  }  */
 
 .pagenr {
     text-align: right;
