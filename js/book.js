@@ -7,8 +7,8 @@ $('.page').click(function() {
 });
 function reorder(){
    $(".book").each(function(){
-    var pages=$(this).find(".page")
-    var pages_flipped=$(this).find(".flipped")
+    var pages=$('.book').find(".page")
+    var pages_flipped=$('.book').find(".flipped")
     pages.each(function(i){
         $(this).css("z-index",pages.length-i)
     })
@@ -17,5 +17,8 @@ function reorder(){
     })
    });    
 }
- reorder();
+reorder();
     
+//  document.getElementById("startGame").onclick = function() {
+//     alert("button was clicked");
+//  }​;​
