@@ -39,3 +39,13 @@ currentChoices.forEach( choice => console.log(choice.browseto));
 
 
 function returnIndexOfPage( pagenr ) {  return pages[pagenr].page; };
+
+document.getElementById('pageNrLeft').innerHTML = returnIndexOfPage(1);
+document.getElementById('pageNrRight').innerHTML = returnIndexOfPage(2);
+
+
+function returnChapterTitle( chaptitle ) {  return pages[chaptitle].title; };
+
+// document.getElementById('pageTitle').innerHTML = returnChapterTitle(1);
+
+
