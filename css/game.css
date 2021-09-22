@@ -68,6 +68,10 @@ h3 {
     margin: 3% 0;
 }
 
+.btn.unused {
+  display: none;
+}
+
 
 
 /* Book */

@@ -1,0 +1,19 @@
+{
+  "name": "timechronicles-main",
+  "version": "1.0.0",
+  "description": "A text adventure game",
+  "main": "game.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "denoBuild": "deno bundle --config deno.json ./game.ts ./js/game.js",
+    "denoWatch": "deno bundle --watch --config deno.json ./game.ts ./js/game.js",
+    "terminal": "deno run --config deno.json ./game.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.4.3"
+  }
+}
