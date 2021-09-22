@@ -528,32 +528,40 @@ function run(sceneFunction) {
         for (var i = 0; i < scene.options.length; i++) {
             console.log(i + 1 + ". " + scene.options[i].text);
         }
-        var inputText = prompt("");
-        if (inputText === null)
-            continue;
+        /* var inputText = prompt("");
+        if (inputText === null);
         if (inputText.startsWith("skip to ")) {
             var level = inputText.slice("skip to ".length);
             console.log(level);
             var wantedScene = scenes[level];
             if (wantedScene === undefined) {
                 console.warn("The level \"" + level + "\" doesn't exist");
-                continue;
             }
             sceneFunction = wantedScene;
-            continue;
         }
         if (inputText === "save") {
             console.log("Current scene id: " + getSceneId(sceneFunction));
-            continue;
-        }
-        var inputNumber = parseInt(inputText);
-        if (inputNumber === null || isNaN(inputNumber))
-            continue;
+        }*/
+
+        let h2 = document.getElementById('pageTitle');
+        h2.textContent = 'Introduction';
+        let p = document.getElementById('text');
+        p.textContent = scene.desc;
+
+        let button1 = document.getElementById('choice1');
+        button1.textContent = 'testing content of option 1';
+        let button2 = document.getElementById('choice2');
+        button2.textContent = 'testing content of option 2';
+        let button3 = document.getElementById('choice3');
+        button3.textContent = 'testing content of option 3';
+        let button4 = document.getElementById('choice4');
+        button4.textContent = 'testing content of option 4';
+
+        let inputNumber = parseInt(inputText);
+        if (inputNumber === null || isNaN(inputNumber));
         inputNumber--;
-        if (inputNumber < 0)
-            continue;
-        if (inputNumber >= scene.options.length)
-            continue;
+        if (inputNumber < 0);
+        if (inputNumber >= scene.options.length);
         console.log(inputNumber);
         sceneFunction = scene.options[inputNumber].scene;
     }
