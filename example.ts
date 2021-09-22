@@ -3,17 +3,32 @@ interface Scene {
     desc: string,
     options: Option[]
 }
-
 interface Option {
     text: string,
     scene: () => Scene,
     sideEffects?: () => any,
 }
+
+let inventoryItems = {
+    TestItem: false,
+    invisibilityCloak: false,
+};
+type InventoyItem = keyof typeof inventoryItems;
+
 let inventory = {
-    add: function (item: any) {
-        
-    }
-}
+    add: function (item: InventoyItem) {
+        inventoryItems[item] = true;
+    },
+    contains: function(item: InventoyItem): boolean {
+        return inventoryItems[item];
+    },
+    toSaveData: function(): Object {
+        return inventoryItems;
+    },
+    fromSaveData: function(data: Object) {
+        inventoryItems = data as any;
+    },
+};
 let scenes = {
     intro: function (): Scene {
         return {
@@ -24,7 +39,7 @@ let scenes = {
                     text: "Nonsense! You don’t believe in any of this! You should investigate if this artifact even does anything at all.",
                     scene: scenes.avoidScam,
                     sideEffects: function () {
-                        inventory.add("Test item")
+                        inventory.add("TestItem")
                     }
                 },
                 {
@@ -459,24 +474,24 @@ let scenes = {
     }
 };
 
-let randomDungeonsSceneSelection = [scenes.dungeonsDesolate, scenes.dungeonsSpiders]
-let randomDungeonsScene = randomDungeonsSceneSelection[Math.floor(Math.random() * randomDungeonsSceneSelection.length)]
+/** Get a random element in an array. */
+function chooseRandomElement<T>(array: T[]): T {
+    if (array.length === 0) {
+        throw new Error('Array must contain at least 1 element');
+    }
+    return array[Math.floor(Math.random() * array.length)]
+}
+
+let randomDungeonsScene = chooseRandomElement([scenes.dungeonsDesolate, scenes.dungeonsSpiders])
 let randomDungeonsInspection: string
 if (randomDungeonsScene === scenes.dungeonsDesolate) {
     randomDungeonsInspection = ' The dungeons quietly sound with dripping liquids.'
-}
-else {
+} else {
     randomDungeonsInspection = ' The dungeons echo with many light footsteps in bursts.'
 }
 
-let randomPasswordOutcome1 = [scenes.timeArtifact, scenes.artifactChamberRejection]
-let randomOutcome1 = randomPasswordOutcome1[Math.floor(Math.random() * randomPasswordOutcome1.length)]
-if (randomOutcome1 === scenes.timeArtifact) {
-    randomOutcome1 = scenes.timeArtifact
-}
-else {
-    randomOutcome1 = scenes.artifactChamberRejection
-}
+let randomOutcome1 = chooseRandomElement([scenes.timeArtifact, scenes.artifactChamberRejection])
+
 let randomLeads1:string
 if (randomOutcome1 === scenes.timeArtifact) {
     randomLeads1 = ' '
@@ -485,14 +500,8 @@ else {
     randomLeads1 = ' '
 }
 
-let randomPasswordOutcome2 = [scenes.timeArtifact, scenes.artifactChamberRejection]
-let randomOutcome2 = randomPasswordOutcome2[Math.floor(Math.random() * randomPasswordOutcome2.length)]
-if (randomOutcome2 === scenes.timeArtifact) {
-    randomOutcome2 = scenes.timeArtifact
-}
-else {
-    randomOutcome2 = scenes.artifactChamberRejection
-}
+let randomOutcome2 = chooseRandomElement([scenes.timeArtifact, scenes.artifactChamberRejection])
+
 let randomLeads2:string
 if (randomOutcome2 === scenes.timeArtifact) {
     randomLeads2 = ' '
@@ -501,14 +510,8 @@ else {
     randomLeads2 = ' '
 }
 
-let randomPasswordOutcome3 = [scenes.timeArtifact, scenes.artifactChamberRejection]
-let randomOutcome3 = randomPasswordOutcome3[Math.floor(Math.random() * randomPasswordOutcome3.length)]
-if (randomOutcome3 === scenes.timeArtifact) {
-    randomOutcome3 = scenes.timeArtifact
-}
-else {
-    randomOutcome3 = scenes.artifactChamberRejection
-}
+let randomOutcome3 = chooseRandomElement([scenes.timeArtifact, scenes.artifactChamberRejection])
+
 let randomLeads3:string
 if (randomOutcome3 === scenes.timeArtifact) {
     randomLeads3 = ' '
@@ -517,14 +520,8 @@ else {
     randomLeads3 = ' '
 }
 
-let randomPasswordOutcome4 = [scenes.timeArtifact, scenes.artifactChamberRejection]
-let randomOutcome4 = randomPasswordOutcome4[Math.floor(Math.random() * randomPasswordOutcome4.length)]
-if (randomOutcome4 === scenes.timeArtifact) {
-    randomOutcome4 = scenes.timeArtifact
-}
-else {
-    randomOutcome4 = scenes.artifactChamberRejection
-}
+let randomOutcome4 = chooseRandomElement([scenes.timeArtifact, scenes.artifactChamberRejection])
+
 let randomLeads4:string
 if (randomOutcome4 === scenes.timeArtifact) {
     randomLeads4 = ' '
@@ -533,14 +530,8 @@ else {
     randomLeads4 = ' '
 }
 
-let randomPasswordOutcome5 = [scenes.timeArtifact, scenes.artifactChamberRejection]
-let randomOutcome5 = randomPasswordOutcome5[Math.floor(Math.random() * randomPasswordOutcome5.length)]
-if (randomOutcome5 === scenes.timeArtifact) {
-    randomOutcome5 = scenes.timeArtifact
-}
-else {
-    randomOutcome5 = scenes.artifactChamberRejection
-}
+let randomOutcome5 = chooseRandomElement([scenes.timeArtifact, scenes.artifactChamberRejection])
+
 let randomLeads5:string
 if (randomOutcome5 === scenes.timeArtifact) {
     randomLeads5 = ' '
@@ -549,6 +540,7 @@ else {
     randomLeads5 = ' '
 }
 
+/** Get a scene's id as a string. */
 function getSceneId(sceneFunction: () => Scene): string | null {
     for (let id of Object.keys(scenes)) {
         if ((scenes as any)[id] === sceneFunction) {
@@ -558,7 +550,8 @@ function getSceneId(sceneFunction: () => Scene): string | null {
     return null;
 }
 
-function run(sceneFunction: () => Scene) {
+/** Run the game inside a terminal for some debugging. */
+function runInDeno(sceneFunction: () => Scene) {
     while (true) {
         let scene = sceneFunction();
         console.log('   ' + scene.title);
@@ -603,6 +596,92 @@ function run(sceneFunction: () => Scene) {
 
         sceneFunction = scene.options[inputNumber].scene;
     }
-
 }
-run(scenes.intro)
+
+
+interface SaveData {
+    sceneId: string,
+    inventory: Object,
+}
+function save(data: SaveData) {
+    try {
+        localStorage.setItem('saveData', JSON.stringify(data));
+    } catch (error) {
+        console.log("Can't save data: ", error);
+    }
+}
+function load(): SaveData | null {
+    try {
+        let loaded = localStorage.getItem('saveData');
+        if (loaded) {
+            return JSON.parse(loaded);
+        } else {
+            return null;
+        }   
+    } catch (error) {
+        console.error("Can't load save data: ", error);
+        return null;
+    }
+}
+function runInBrowser(sceneFunction: () => Scene) {
+    let sceneId = getSceneId(sceneFunction);
+    if (sceneId) {
+        save({
+            sceneId: sceneId,
+            inventory: inventory.toSaveData(),
+        });
+    } else {
+        console.error(`Failed to find scene id for current scene, can't save data.`);
+    }
+
+    let scene = sceneFunction();
+    let uiButtons = [
+        document.getElementById('choice1'),
+        document.getElementById('choice2'),
+        document.getElementById('choice3'),
+        document.getElementById('choice4'),
+    ].map(function(button) {
+        if (!button) throw new Error('Failed to get button from document');
+        return button;
+    });
+    for (let button of uiButtons) {
+        button.classList.add('unused');
+        button.onclick = null;
+    }
+    for (let i = 0; i < scene.options.length; i++) {
+        if (uiButtons.length <= i) throw new Error('Ran out of UI buttons.')
+        let uiButton = uiButtons[i];
+        let option = scene.options[i];
+
+        uiButton.classList.remove('unused');
+        uiButton.textContent = (i + 1).toString() + ". " + option.text;
+        uiButton.onclick = function() {
+            if (option.sideEffects) {
+                option.sideEffects();
+            }
+            runInBrowser(option.scene);
+        };
+    }
+    let h2 = document.getElementById('pageTitle');
+    if (!h2) throw new Error("Failed to get title element");
+    h2.textContent = scene.title;
+    let p = document.getElementById('text');
+    if (!p) throw new Error('Failed to content element');
+    p.textContent = scene.desc;
+}
+if ('Deno' in window) {
+    runInDeno(scenes.intro)
+} else {
+    let firstScene = scenes.intro;
+    let loadedScene = load();
+    if (loadedScene) {
+        let sceneFunction = (scenes as any)[loadedScene.sceneId];
+        if (sceneFunction) {
+            firstScene = sceneFunction;
+            inventory.fromSaveData(loadedScene.inventory);
+        } else {
+            console.error(`Failed to load save data, couldn't find scene with id "${loadedScene.sceneId}".`);
+        }
+    }
+    runInBrowser(firstScene)
+}
