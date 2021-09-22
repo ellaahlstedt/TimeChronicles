@@ -17,7 +17,31 @@ let inventory = {
         inventoryItems = data;
     },
 };
+let defaultInventoryData = inventory.toSaveData();
+let loadedSceneFunction = null;
 let scenes = {
+    loadGame: function () {
+        let options = [
+            {
+                text: `New Game`,
+                scene: scenes.intro,
+                sideEffects: function () {
+                    inventory.fromSaveData(defaultInventoryData);
+                },
+            },
+        ];
+        if (loadedSceneFunction) {
+            options.push({
+                text: `Load Game`,
+                scene: loadedSceneFunction,
+            });
+        }
+        return {
+            title: `Time Chronicles`,
+            desc: ``,
+            options,
+        };
+    },
     intro: function () {
         return {
             title: 'Introduction',
@@ -546,8 +570,12 @@ function runInDeno(sceneFunction) {
             continue;
         if (inputNumber >= scene.options.length)
             continue;
-        console.log(inputNumber);
-        sceneFunction = scene.options[inputNumber].scene;
+        console.log(`You selected option: `, inputNumber);
+        let selectedOption = scene.options[inputNumber];
+        if (selectedOption.sideEffects) {
+            selectedOption.sideEffects();
+        }
+        sceneFunction = selectedOption.scene;
     }
 }
 function save(data) {
@@ -627,15 +655,16 @@ if ('Deno' in window) {
 }
 else {
     let firstScene = scenes.intro;
-    let loadedScene = load();
-    if (loadedScene) {
-        let sceneFunction = scenes[loadedScene.sceneId];
+    let loadedSceneData = load();
+    if (loadedSceneData) {
+        let sceneFunction = scenes[loadedSceneData.sceneId];
         if (sceneFunction) {
-            firstScene = sceneFunction;
-            inventory.fromSaveData(loadedScene.inventory);
+            loadedSceneFunction = sceneFunction;
+            firstScene = scenes.loadGame;
+            inventory.fromSaveData(loadedSceneData.inventory);
         }
         else {
-            console.error(`Failed to load save data, couldn't find scene with id "${loadedScene.sceneId}".`);
+            console.error(`Failed to load save data, couldn't find scene with id "${loadedSceneData.sceneId}".`);
         }
     }
     runInBrowser(firstScene);
