@@ -601,59 +601,109 @@ function load() {
         return null;
     }
 }
+let firstFlip = true;
+let sceneUniqueId = 0;
+let flipAnimationInProgress = false;
 function runInBrowser(sceneFunction) {
-    let sceneId = getSceneId(sceneFunction);
-    if (sceneId) {
-        save({
-            sceneId: sceneId,
-            inventory: inventory.toSaveData(),
-        });
-    }
-    else {
-        console.error(`Failed to find scene id for current scene, can't save data.`);
+    if (sceneFunction !== scenes.loadGame) {
+        let sceneId = getSceneId(sceneFunction);
+        if (sceneId) {
+            save({
+                sceneId: sceneId,
+                inventory: inventory.toSaveData(),
+            });
+        }
+        else {
+            console.error(`Failed to find scene id for current scene, can't save data.`);
+        }
     }
     let scene = sceneFunction();
-    let uiButtons = [
-        document.getElementById('choice1'),
-        document.getElementById('choice2'),
-        document.getElementById('choice3'),
-        document.getElementById('choice4'),
-    ].map(function (button) {
-        if (!button)
-            throw new Error('Failed to get button from document');
-        return button;
-    });
-    for (let button of uiButtons) {
-        button.classList.add('unused');
-        button.onclick = null;
+    sceneUniqueId++;
+    let currentSceneUniqueId = sceneUniqueId;
+    let pages = Array.from(document.querySelectorAll('.page .choices'));
+    function updateOptions(choices) {
+        let uiButtons = Array.from(choices.querySelectorAll("button"));
+        for (let button of uiButtons) {
+            button.classList.add('unused');
+            button.onclick = null;
+        }
+        for (let i = 0; i < scene.options.length; i++) {
+            if (uiButtons.length <= i)
+                throw new Error('Ran out of UI buttons.');
+            let uiButton = uiButtons[i];
+            let option = scene.options[i];
+            uiButton.classList.remove('unused');
+            uiButton.textContent = (i + 1).toString() + ". " + option.text;
+            uiButton.onclick = function () {
+                // Ensure smooth animations:
+                if (flipAnimationInProgress)
+                    return;
+                // Ensure we never press a button that isn't connected to the current scene:
+                if (sceneUniqueId !== currentSceneUniqueId)
+                    return;
+                if (option.sideEffects) {
+                    option.sideEffects();
+                }
+                runInBrowser(option.scene);
+            };
+        }
     }
-    for (let i = 0; i < scene.options.length; i++) {
-        if (uiButtons.length <= i)
-            throw new Error('Ran out of UI buttons.');
-        let uiButton = uiButtons[i];
-        let option = scene.options[i];
-        uiButton.classList.remove('unused');
-        uiButton.textContent = (i + 1).toString() + ". " + option.text;
-        uiButton.onclick = function () {
-            if (option.sideEffects) {
-                option.sideEffects();
-            }
-            runInBrowser(option.scene);
-        };
+    updateOptions(pages[2]);
+    let h2 = document.querySelectorAll('.content .pageTitle');
+    h2[1].textContent = scene.title;
+    let p = document.querySelectorAll('.content .text');
+    p[1].textContent = scene.desc;
+    if (!firstFlip) {
+        flipAnimationInProgress = true;
+        window.flipNext();
+        // After animation is done:
+        setTimeout(function () {
+            updateOptions(pages[1]);
+            h2[0].textContent = scene.title;
+            p[0].textContent = scene.desc;
+            resetBookFlip();
+            flipAnimationInProgress = false;
+        }, 1000);
     }
-    let h2 = document.getElementById('pageTitle');
-    if (!h2)
-        throw new Error("Failed to get title element");
-    h2.textContent = scene.title;
-    let p = document.getElementById('text');
-    if (!p)
-        throw new Error('Failed to content element');
-    p.textContent = scene.desc;
+    else {
+        // Don't animate the initial page load:
+        updateOptions(pages[1]);
+        h2[0].textContent = scene.title;
+        p[0].textContent = scene.desc;
+        firstFlip = false;
+    }
+}
+function resetBookFlip() {
+    try {
+        document.body.classList.add('noAnimation');
+        let book = document.getElementsByClassName("book")[0];
+        let pages = Array.from(book.querySelectorAll('.page'));
+        // Ignore first page:
+        pages.shift();
+        for (let page of pages) {
+            page.classList.remove("flipped");
+            page.classList.add("no-anim");
+        }
+        for (let page of pages) {
+            page.classList.add("clonedPage");
+        }
+    }
+    finally {
+        setTimeout(function () { document.body.classList.remove('noAnimation'); }, 10);
+    }
 }
 if ('Deno' in window) {
     runInDeno(scenes.intro);
 }
 else {
+    // Duplicate book pages:
+    let book = document.getElementsByClassName("book")[0];
+    for (let page of Array.from(book.querySelectorAll('.page'))) {
+        book.appendChild(page.cloneNode(true));
+        book.appendChild(page.cloneNode(true));
+    }
+    resetBookFlip();
+    window.reorder();
     let firstScene = scenes.intro;
     let loadedSceneData = load();
     if (loadedSceneData) {

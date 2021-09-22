@@ -5,6 +5,11 @@
     color: #000;
 }
 
+.noAnimation * {
+  transition: none !important;
+  animation: none !important;
+}
+
 body {
     background-image: url(../img/library.jpg);
     height: 100vh;
