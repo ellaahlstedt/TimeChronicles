@@ -89,7 +89,7 @@ var scenes = {
     frontGate: function () {
         return {
             title: 'Infiltrating the castle - Front gate',
-            desc: "Determined to enter this place head on, your firm warrior Leroy charges ahead into the main hallway with a fierce battle cry!\n            With any sense of suddulty gone, you've catched the attention of a dragon, leaving you with no choice but to:",
+            desc: "Determined to enter this place head on, your firm warrior Leroy charges ahead into the main hallway with a fierce battle cry!!            With any sense of suddulty gone, you've catched the attention of a dragon, leaving you with no choice but to:",
             options: [
                 {
                     text: "Engage the dragon in combat.",
@@ -181,7 +181,7 @@ var scenes = {
     libraryClues: function () {
         return {
             title: 'Infiltrating the castle - Library - Clues',
-            desc: "After having traversed the stil environment in a search for the right texts on their corresponding shelves, you attain a book titled \u201CThe Unique Entities of Castle Alzheim\u201D, which details the nature of various items confined here including a time artifact. The time artifact is described as a warped matter capable of altering four-dimensional past timelines provided they’re justified in parallel formation and within its range of 24 hours which can’t be offseted. This power originates from another secretive art called \u201CPortus\u201D which unlike the time artifact also brings one back in space for better or worse. \n            \n            Just as you’re about to leave, a ragged crooked-looking humanoid creature enters the room, instantly beginning to conjure up a horde of undead summonings upon noticing your presence. Countering this you:",
+            desc: "After having traversed the stil environment in a search for the right texts on their corresponding shelves, you attain a book titled “The Unique Entities of Castle Alzheim”, which details the nature of various items confined here including a time artifact. The time artifact is described as a warped matter capable of altering four-dimensional past timelines provided they’re justified in parallel formation and within its range of 24 hours which can’t be offseted. This power originates from another secretive art called “Portus” which unlike the time artifact also brings one back in space for better or worse.                        Just as you’re about to leave, a ragged crooked-looking humanoid creature enters the room, instantly beginning to conjure up a horde of undead summonings upon noticing your presence. Countering this you:",
             options: [
                 {
                     text: "Charge the main foe",
@@ -269,7 +269,7 @@ var scenes = {
     artifactChamberRejection: function () {
         return {
             title: "Infiltrating the castle - Artifact chamber - Access denied",
-            desc: "The door reacts disapprovingly, keeping itself shut while whispering \u201CAccess denied!\u201D. Considering a final attempt to unlock this gate, you:",
+            desc: "The door reacts disapprovingly, keeping itself shut while whispering “Access denied!”. Considering a final attempt to unlock this gate, you:",
             options: [
                 {
                     text: "Speak the password “Warped matter”.",
@@ -305,7 +305,7 @@ var scenes = {
     timeArtifact: function () {
         return {
             title: 'Infiltrating the castle - Artifact:',
-            desc: "The door reacts approvingly, opening itself while whispering \u201CAccess granted!\u201D, now unveiling the contents. A vase of glass mounted on a frame of an elevated globe in a small thickly isolated room, containing a clock-like object within, identical to the one you received from the letter at the start - the time reversing artifact you were looking for, finally you have it at hand.",
+            desc: "The door reacts approvingly, opening itself while whispering “Access granted!”, now unveiling the contents. A vase of glass mounted on a frame of an elevated globe in a small thickly isolated room, containing a clock-like object within, identical to the one you received from the letter at the start - the time reversing artifact you were looking for, finally you have it at hand.",
             options: [
                 {
                     text: "Continue",
@@ -345,7 +345,7 @@ var scenes = {
     keepStolenArtifact: function () {
         return {
             title: 'Ending - Keep the stolen artifact for yourself',
-            desc: "You put your original time artifact, the one you got in the letter, back inside the letter and put it next to the bed that your past self is sleeping in. Feeling quite clever and hoping to keep your newly stolen artifact, you and your companions leave the village to find out what shenanigans you can get up to with this newly acquired power. You are sure the time loop will solve itself now that it, at least, has one time artifact.\n            \n            In the middle of the following night a pair of strangers approach you. They claim to be from the time-correction beuro and that you will perish unless you give up your time artifact. They assure you that if you give them the artifact then they can solve the time loop and ensure your safety.",
+            desc: "You put your original time artifact, the one you got in the letter, back inside the letter and put it next to the bed that your past self is sleeping in. Feeling quite clever and hoping to keep your newly stolen artifact, you and your companions leave the village to find out what shenanigans you can get up to with this newly acquired power. You are sure the time loop will solve itself now that it, at least, has one time artifact.!            !            In the middle of the following night a pair of strangers approach you. They claim to be from the time-correction beuro and that you will perish unless you give up your time artifact. They assure you that if you give them the artifact then they can solve the time loop and ensure your safety.",
             options: [
                 {
                     text: "You know a scam when you see one. No way will you be surrendering your hard earned time artifact to these morons!",
@@ -373,7 +373,7 @@ var scenes = {
     artifactBargin: function () {
         return {
             title: 'Ending - Keep the stolen artifact for yourself - Refuse strangers',
-            desc: "They seem surprised at your stubborn rejection of their \u201Chelp\u201D and they call you greedy. They argue among themselves for a couple of minutes and then approach you again. They have decided to appeal towards your greed and offer you a sizable amount of gold if you just give them the time artifact.",
+            desc: "They seem surprised at your stubborn rejection of their “help” and they call you greedy. They argue among themselves for a couple of minutes and then approach you again. They have decided to appeal towards your greed and offer you a sizable amount of gold if you just give them the time artifact.",
             options: [
                 {
                     text: "Now this is more like it! A deal worth taking! You were tired of this nonsense anyway, and now you get paid to get rid of it!? You certainly are good at making deals. These second rate scam artists have nothing on you.",
@@ -418,7 +418,8 @@ var scenes = {
             ]
         };
     }
-};
+};       
+
 var randomDungeonsSceneSelection = [scenes.dungeonsDesolate, scenes.dungeonsSpiders];
 var randomDungeonsScene = randomDungeonsSceneSelection[Math.floor(Math.random() * randomDungeonsSceneSelection.length)];
 var randomDungeonsInspection;
@@ -512,6 +513,20 @@ function getSceneId(sceneFunction) {
     }
     return null;
 }
+
+function changeScene( el ) {
+    if ( el.value === "0" )
+        el.value = "1";
+    else
+        el.value = "0";
+}
+
+// Simple proof of concept for the onClick event.
+function changeColor(newColor) {
+    var elem = document.getElementById('text');
+    elem.style.color = newColor;
+}  
+
 function run(sceneFunction) {
     while (true) {
         var scene = sceneFunction();
@@ -528,8 +543,8 @@ function run(sceneFunction) {
         for (var i = 0; i < scene.options.length; i++) {
             console.log(i + 1 + ". " + scene.options[i].text);
         }
-        /* var inputText = prompt("");
-        if (inputText === null);
+        var inputText = prompt("");
+        /*if (inputText === null);
         if (inputText.startsWith("skip to ")) {
             var level = inputText.slice("skip to ".length);
             console.log(level);
@@ -544,25 +559,26 @@ function run(sceneFunction) {
         }*/
 
         let h2 = document.getElementById('pageTitle');
-        h2.textContent = 'Introduction';
+        h2.textContent = scene.title;
         let p = document.getElementById('text');
         p.textContent = scene.desc;
 
         let button1 = document.getElementById('choice1');
-        button1.textContent = 'testing content of option 1';
+        button1.textContent = scene.options.text[1];
         let button2 = document.getElementById('choice2');
-        button2.textContent = 'testing content of option 2';
+        button2.textContent = scene.options.text[2];
         let button3 = document.getElementById('choice3');
-        button3.textContent = 'testing content of option 3';
+        button3.textContent = scene.options.text[3];
         let button4 = document.getElementById('choice4');
-        button4.textContent = 'testing content of option 4';
+        button4.textContent = scene.options.text[4]; 
 
-        let inputNumber = parseInt(inputText);
+
+        /*let inputNumber = parseInt(inputText);
         if (inputNumber === null || isNaN(inputNumber));
         inputNumber--;
         if (inputNumber < 0);
         if (inputNumber >= scene.options.length);
-        console.log(inputNumber);
+        console.log(inputNumber);*/
         sceneFunction = scene.options[inputNumber].scene;
     }
 }
