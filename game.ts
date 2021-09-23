@@ -1,7 +1,8 @@
 interface Scene {
     title: string,
     desc: string,
-    options: Option[]
+    options: Option[],
+    backImg?: string,
 }
 interface Option {
     text: string,
@@ -15,6 +16,10 @@ let inventoryItems = {
 };
 type InventoyItem = keyof typeof inventoryItems;
 
+function deepCopy<T>(obj: T): T {
+    return JSON.parse(JSON.stringify(obj));
+}
+
 let inventory = {
     add: function (item: InventoyItem) {
         inventoryItems[item] = true;
@@ -22,14 +27,17 @@ let inventory = {
     contains: function (item: InventoyItem): boolean {
         return inventoryItems[item];
     },
+    remove: function (item: InventoyItem) {
+        inventoryItems[item] = false;
+    },
     toSaveData: function (): Object {
         return inventoryItems;
     },
     fromSaveData: function (data: Object) {
-        inventoryItems = data as any;
+        inventoryItems = deepCopy(data) as any;
     },
 };
-let defaultInventoryData = inventory.toSaveData();
+let defaultInventoryData = deepCopy(inventory.toSaveData());
 
 let loadedSceneFunction: any = null;
 
@@ -39,21 +47,22 @@ let scenes = {
             {
                 text: `New Game`,
                 scene: scenes.intro,
-                sideEffects: function () {
-                    inventory.fromSaveData(defaultInventoryData);
-                },
             },
         ];
         if (loadedSceneFunction) {
             options.push({
                 text: `Load Game`,
                 scene: loadedSceneFunction,
+                sideEffects: function () {
+                    restoreStateFromSaveData(load() as any);
+                },
             });
         }
         return {
             title: `Time Chronicles`,
             desc: ``,
             options,
+            backImg: "./img/mainBg.jpg",
         };
     },
     intro: function (): Scene {
@@ -575,6 +584,11 @@ function getSceneId(sceneFunction: () => Scene): string | null {
     }
     return null;
 }
+function getSceneFunction(sceneId: string): null | (() => Scene) {
+    let sceneFunction = (scenes as any)[sceneId];
+    if (sceneFunction) return sceneFunction;
+    else return null;
+}
 
 /** Run the game inside a terminal for some debugging. */
 function runInDeno(sceneFunction: () => Scene) {
@@ -599,8 +613,8 @@ function runInDeno(sceneFunction: () => Scene) {
         if (inputText.startsWith("skip to ")) {
             let level = inputText.slice("skip to ".length);
             console.log(level);
-            let wantedScene = (scenes as any)[level];
-            if (wantedScene === undefined) {
+            let wantedScene = getSceneFunction(level);
+            if (!wantedScene) {
                 console.warn("The level \"" + level + "\" doesn't exist");
                 continue;
             }
@@ -632,6 +646,7 @@ function runInDeno(sceneFunction: () => Scene) {
 interface SaveData {
     sceneId: string,
     inventory: Object,
+    pageFlipCount: number,
 }
 function save(data: SaveData) {
     try {
@@ -656,14 +671,20 @@ function load(): SaveData | null {
 
 let firstFlip = true;
 let sceneUniqueId = 0;
+let pageFlipCount = 0;
 let flipAnimationInProgress = false;
+let lastClickedButton: HTMLButtonElement | null = null;
+let currentBackgroundImage: Element | null = null;
 function runInBrowser(sceneFunction: () => Scene) {
+    lastClickedButton = null;
+
     if (sceneFunction !== scenes.loadGame) {
         let sceneId = getSceneId(sceneFunction);
         if (sceneId) {
             save({
                 sceneId: sceneId,
                 inventory: inventory.toSaveData(),
+                pageFlipCount,
             });
         } else {
             console.error(`Failed to find scene id for current scene, can't save data.`);
@@ -671,14 +692,44 @@ function runInBrowser(sceneFunction: () => Scene) {
     }
 
     let scene = sceneFunction();
+
     sceneUniqueId++;
     let currentSceneUniqueId = sceneUniqueId;
-    let pageNum1 = -1;
-    let pageNum2 = 0;
 
-    let pages = Array.from(document.querySelectorAll('.page .choices'));
-    function updateOptions(choices: Element) {
-        let uiButtons = Array.from(choices.querySelectorAll("button"));
+    let pageNum1 = pageFlipCount * 2 + 1;
+    let pageNum2 = pageFlipCount * 2 + 2;
+    pageFlipCount++;
+
+    let pages = Array.from(document.querySelectorAll('.page'));
+
+
+    let previousBackgroundImage = currentBackgroundImage;
+    for (let image of Array.from(document.querySelectorAll('#background-images div'))) {
+        if (!previousBackgroundImage) {
+            // Just fade away the first div when game is started.
+            previousBackgroundImage = image;
+        }
+        if (image === previousBackgroundImage) {
+            image.classList.add('fadeAway');
+        } else {
+            image.classList.remove('fadeAway');
+            if (scene.backImg) {
+                image.setAttribute("style", `background-image: url(${scene.backImg});`);
+            } else {
+                image.removeAttribute("style");
+            }
+            currentBackgroundImage = image;
+        }
+    }
+
+
+    function updateFrontside(page: Element) {
+        let pageNr = page.querySelector('.side-1 .pagenr');
+        if (!pageNr) throw new Error(`Can't find pageNr element`);
+        pageNr.textContent = pageNum2.toString();
+
+
+        let uiButtons = Array.from(page.querySelectorAll("button"));
         for (let button of uiButtons) {
             button.classList.add('unused');
             button.onclick = null;
@@ -692,7 +743,10 @@ function runInBrowser(sceneFunction: () => Scene) {
             uiButton.textContent = (i + 1).toString() + ". " + option.text;
             uiButton.onclick = function () {
                 // Ensure smooth animations:
-                if (flipAnimationInProgress) return;
+                if (flipAnimationInProgress) {
+                    lastClickedButton = uiButton;
+                    return;
+                }
                 // Ensure we never press a button that isn't connected to the current scene:
                 if (sceneUniqueId !== currentSceneUniqueId) return;
 
@@ -703,47 +757,51 @@ function runInBrowser(sceneFunction: () => Scene) {
             };
         }
     }
-    updateOptions(pages[2]);
+    function updateBackside(page: Element) {
+        let h2 = page.querySelector('.content .pageTitle');
+        if (!h2) throw new Error('Cant find page title element');
+        h2.textContent = scene.title;
 
-    let h2 = document.querySelectorAll('.content .pageTitle');
-    h2[1].textContent = scene.title;
-    let p = document.querySelectorAll('.content .text');
-    p[1].textContent = scene.desc;
-    pageNum1++;
-    pageNum1++;
-    let initialPage = document.querySelectorAll('.pagenr');
-    initialPage[1].textContent = pageNum1.toString(), 1000;
-    pageNum2++;
-    pageNum2++;
-    let secondPage = document.querySelectorAll('.side-1 .pagenr');
-    secondPage[1].textContent = pageNum2.toString(), 1000;   
+        let p = page.querySelector('.content .text');
+        if (!p) throw new Error('Cant find page text element');
+        p.textContent = scene.desc;
 
+        let pageNr = page.querySelector('.side-2 .pagenr');
+        if (!pageNr) throw new Error(`Can't find pageNr element`);
+        pageNr.textContent = pageNum1.toString();
+    }
+    updateBackside(pages[1]);
+    updateFrontside(pages[2]);
+
+    /** Update the pages that are visible at the start and after we reset animations. */
+    function updateFirstPages() {
+        updateBackside(pages[0]);
+        updateFrontside(pages[1]);
+    }
     if (!firstFlip) {
         flipAnimationInProgress = true;
         (window as any).flipNext();
-    
+
         // After animation is done:
         setTimeout(function () {
-            updateOptions(pages[1]);
-            h2[0].textContent = scene.title;
-            p[0].textContent = scene.desc;
-            initialPage = document.querySelectorAll('.side-2 .pagenr');
-            initialPage[1].textContent = pageNum2.toString(), 1000;
+            updateFirstPages();
             resetBookFlip();
             flipAnimationInProgress = false;
+            if (lastClickedButton) {
+                lastClickedButton.click();
+                lastClickedButton = null;
+            }
         }, 1000);
     } else {
         // Don't animate the initial page load:
-        updateOptions(pages[1]);
-        h2[0].textContent = scene.title;
-        p[0].textContent = scene.desc;
+        updateFirstPages();
 
         firstFlip = false;
     }
 }
 function resetBookFlip() {
     try {
-        document.body.classList.add('noAnimation');
+        document.body.classList.add('flipping-back');
         let book = document.getElementsByClassName("book")[0];
         let pages = Array.from(book.querySelectorAll('.page'));
         // Ignore first page:
@@ -752,11 +810,17 @@ function resetBookFlip() {
             page.classList.remove("flipped");
             page.classList.add("no-anim");
         }
-        for (let page of pages) {
-            page.classList.add("clonedPage");
-        }
+        (window as any).reorder();
     } finally {
-        setTimeout(function() { document.body.classList.remove('noAnimation'); }, 20);
+        setTimeout(function () { document.body.classList.remove('flipping-back'); }, 20);
+    }
+}
+function restoreStateFromSaveData(data: SaveData) {
+    inventory.fromSaveData(data.inventory);
+
+    pageFlipCount = data.pageFlipCount;
+    if (isNaN(pageFlipCount)) {
+        pageFlipCount = 1;
     }
 }
 if ('Deno' in window) {
@@ -769,18 +833,14 @@ if ('Deno' in window) {
         book.appendChild(page.cloneNode(true));
     }
     resetBookFlip();
-    (window as any).reorder();
-    
-
 
     let firstScene = scenes.intro;
     let loadedSceneData = load();
     if (loadedSceneData) {
-        let sceneFunction = (scenes as any)[loadedSceneData.sceneId];
+        let sceneFunction = getSceneFunction(loadedSceneData.sceneId);
         if (sceneFunction) {
             loadedSceneFunction = sceneFunction;
             firstScene = scenes.loadGame;
-            inventory.fromSaveData(loadedSceneData.inventory);
         } else {
             console.error(`Failed to load save data, couldn't find scene with id "${loadedSceneData.sceneId}".`);
         }
