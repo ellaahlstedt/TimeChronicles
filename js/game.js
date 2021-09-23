@@ -621,6 +621,7 @@ let pageFlipCount = 0;
 let flipAnimationInProgress = false;
 let lastClickedButton = null;
 let currentBackgroundImage = null;
+let keyboardHandler = null;
 function runInBrowser(sceneFunction) {
     lastClickedButton = null;
     if (sceneFunction !== scenes.loadGame) {
@@ -637,6 +638,22 @@ function runInBrowser(sceneFunction) {
         }
     }
     let scene = sceneFunction();
+    keyboardHandler = (event) => {
+        let number = parseInt(event.key);
+        if (isNaN(number))
+            return;
+        // Array is 0 indexed not 1-indexed:
+        number--;
+        if (number < 0)
+            return;
+        if (number >= scene.options.length)
+            return;
+        let option = scene.options[number];
+        if (option.sideEffects) {
+            option.sideEffects();
+        }
+        runInBrowser(option.scene);
+    };
     sceneUniqueId++;
     let currentSceneUniqueId = sceneUniqueId;
     let pageNum1 = pageFlipCount * 2 + 1;
@@ -741,6 +758,11 @@ function runInBrowser(sceneFunction) {
         }, 1000);
     }
     else {
+        document.addEventListener('keyup', function (event) {
+            if (keyboardHandler) {
+                keyboardHandler(event);
+            }
+        });
         // Don't animate the initial page load:
         updateFirstPages();
         firstFlip = false;
