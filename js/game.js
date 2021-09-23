@@ -604,6 +604,8 @@ function load() {
 let firstFlip = true;
 let sceneUniqueId = 0;
 let flipAnimationInProgress = false;
+let pageNum1 = -1;
+let pageNum2 = 0;
 function runInBrowser(sceneFunction) {
     if (sceneFunction !== scenes.loadGame) {
         let sceneId = getSceneId(sceneFunction);
@@ -611,6 +613,7 @@ function runInBrowser(sceneFunction) {
             save({
                 sceneId: sceneId,
                 inventory: inventory.toSaveData(),
+                pages: pageNum1 + pageNum2,
             });
         }
         else {
@@ -621,6 +624,7 @@ function runInBrowser(sceneFunction) {
     sceneUniqueId++;
     let currentSceneUniqueId = sceneUniqueId;
     let pages = Array.from(document.querySelectorAll('.page .choices'));
+    document.body.style.backgroundImage = "url('img/mainBg.jpg')"
     function updateOptions(choices) {
         let uiButtons = Array.from(choices.querySelectorAll("button"));
         for (let button of uiButtons) {
@@ -653,6 +657,14 @@ function runInBrowser(sceneFunction) {
     h2[1].textContent = scene.title;
     let p = document.querySelectorAll('.content .text');
     p[1].textContent = scene.desc;
+    pageNum1++;
+    pageNum1++;
+    let initialPage = document.querySelectorAll('.pagenr');
+    initialPage[1].textContent = pageNum1.toString();
+    pageNum2++;
+    pageNum2++;
+    let secondPage = document.querySelectorAll('.side-1 .pagenr');
+    secondPage[1].textContent = pageNum2.toString();
     if (!firstFlip) {
         flipAnimationInProgress = true;
         window.flipNext();
@@ -661,6 +673,8 @@ function runInBrowser(sceneFunction) {
             updateOptions(pages[1]);
             h2[0].textContent = scene.title;
             p[0].textContent = scene.desc;
+            initialPage = document.querySelectorAll('.side-2 .pagenr');
+            initialPage[1].textContent = pageNum2.toString();
             resetBookFlip();
             flipAnimationInProgress = false;
         }, 1000);
@@ -689,7 +703,7 @@ function resetBookFlip() {
         }
     }
     finally {
-        setTimeout(function () { document.body.classList.remove('noAnimation'); }, 10);
+        setTimeout(function () { document.body.classList.remove('noAnimation'); }, 20);
     }
 }
 if ('Deno' in window) {

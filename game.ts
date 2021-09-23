@@ -673,6 +673,8 @@ function runInBrowser(sceneFunction: () => Scene) {
     let scene = sceneFunction();
     sceneUniqueId++;
     let currentSceneUniqueId = sceneUniqueId;
+    let pageNum1 = -1;
+    let pageNum2 = 0;
 
     let pages = Array.from(document.querySelectorAll('.page .choices'));
     function updateOptions(choices: Element) {
@@ -707,6 +709,14 @@ function runInBrowser(sceneFunction: () => Scene) {
     h2[1].textContent = scene.title;
     let p = document.querySelectorAll('.content .text');
     p[1].textContent = scene.desc;
+    pageNum1++;
+    pageNum1++;
+    let initialPage = document.querySelectorAll('.pagenr');
+    initialPage[1].textContent = pageNum1.toString(), 1000;
+    pageNum2++;
+    pageNum2++;
+    let secondPage = document.querySelectorAll('.side-1 .pagenr');
+    secondPage[1].textContent = pageNum2.toString(), 1000;   
 
     if (!firstFlip) {
         flipAnimationInProgress = true;
@@ -717,6 +727,8 @@ function runInBrowser(sceneFunction: () => Scene) {
             updateOptions(pages[1]);
             h2[0].textContent = scene.title;
             p[0].textContent = scene.desc;
+            initialPage = document.querySelectorAll('.side-2 .pagenr');
+            initialPage[1].textContent = pageNum2.toString(), 1000;
             resetBookFlip();
             flipAnimationInProgress = false;
         }, 1000);
@@ -744,7 +756,7 @@ function resetBookFlip() {
             page.classList.add("clonedPage");
         }
     } finally {
-        setTimeout(function() { document.body.classList.remove('noAnimation'); }, 10);
+        setTimeout(function() { document.body.classList.remove('noAnimation'); }, 20);
     }
 }
 if ('Deno' in window) {
