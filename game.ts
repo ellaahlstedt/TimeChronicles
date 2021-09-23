@@ -669,15 +669,22 @@ function load(): SaveData | null {
     }
 }
 
+/** Just true when first starting the game. */
 let firstFlip = true;
+/** A number that is unique to the current scene, ensures options are always related to the current scene. */
 let sceneUniqueId = 0;
+/** Used to update page numbers. */
 let pageFlipCount = 0;
+/** If true then we are currently animating the book, do not allow another option to be selected yet. */
 let flipAnimationInProgress = false;
-let lastClickedButton: HTMLButtonElement | null = null;
+/** The user made a choice while animation was playing, apply as soon as possible. */
+let latestOptionChoice: (() => any) | null = null;
+/** The div tag that contains the current scene's background image. */
 let currentBackgroundImage: Element | null = null;
+/** Make a choice based on a keyboard event. */
 let keyboardHandler: ((event: KeyboardEvent) => any) | null = null;
 function runInBrowser(sceneFunction: () => Scene) {
-    lastClickedButton = null;
+    latestOptionChoice = null;
 
     if (sceneFunction !== scenes.loadGame) {
         let sceneId = getSceneId(sceneFunction);
@@ -695,6 +702,25 @@ function runInBrowser(sceneFunction: () => Scene) {
 
 
     let scene = sceneFunction();
+
+    /** Try to click on a certain option. */
+    function chooseOption(option: Option) {
+        function applyChoise() {
+            // Ensure we never press a button that isn't connected to the current scene:
+            if (sceneUniqueId !== currentSceneUniqueId) return;
+    
+            if (option.sideEffects) {
+                option.sideEffects();
+            }
+            runInBrowser(option.scene);
+        }
+        // Ensure smooth animations:
+        if (flipAnimationInProgress) {
+            latestOptionChoice = applyChoise;
+        } else {
+            applyChoise();
+        }
+    }
     keyboardHandler = (event) => {
         let number = parseInt(event.key);
         if (isNaN(number)) return;
@@ -704,10 +730,7 @@ function runInBrowser(sceneFunction: () => Scene) {
         if (number >= scene.options.length) return;
 
         let option = scene.options[number];
-        if (option.sideEffects) {
-            option.sideEffects();
-        }
-        runInBrowser(option.scene);
+        chooseOption(option);
     };
 
     sceneUniqueId++;
@@ -740,6 +763,7 @@ function runInBrowser(sceneFunction: () => Scene) {
     }
 
 
+    /** Update the front of a certain page (this is the side of the page with the button on). */
     function updateFrontside(page: Element) {
         let pageNr = page.querySelector('.side-1 .pagenr');
         if (!pageNr) throw new Error(`Can't find pageNr element`);
@@ -769,18 +793,7 @@ function runInBrowser(sceneFunction: () => Scene) {
             uiButton.classList.remove('unused');
             uiButton.textContent = (i + 1).toString() + ". " + option.text;
             uiButton.onclick = function () {
-                // Ensure smooth animations:
-                if (flipAnimationInProgress) {
-                    lastClickedButton = uiButton;
-                    return;
-                }
-                // Ensure we never press a button that isn't connected to the current scene:
-                if (sceneUniqueId !== currentSceneUniqueId) return;
-
-                if (option.sideEffects) {
-                    option.sideEffects();
-                }
-                runInBrowser(option.scene);
+                chooseOption(option);
             };
         }
     }
@@ -814,10 +827,12 @@ function runInBrowser(sceneFunction: () => Scene) {
             updateFirstPages();
             resetBookFlip();
             flipAnimationInProgress = false;
-            if (lastClickedButton) {
-                lastClickedButton.click();
-                lastClickedButton = null;
-            }
+            setTimeout(function() {
+                if (latestOptionChoice) {
+                    latestOptionChoice();
+                    latestOptionChoice = null;
+                }
+            }, 10);
         }, 1000);
     } else {
         document.addEventListener('keyup', function(event) {

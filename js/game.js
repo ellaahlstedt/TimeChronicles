@@ -615,15 +615,22 @@ function load() {
         return null;
     }
 }
+/** Just true when first starting the game. */
 let firstFlip = true;
+/** A number that is unique to the current scene, ensures options are always related to the current scene. */
 let sceneUniqueId = 0;
+/** Used to update page numbers. */
 let pageFlipCount = 0;
+/** If true then we are currently animating the book, do not allow another option to be selected yet. */
 let flipAnimationInProgress = false;
-let lastClickedButton = null;
+/** The user made a choice while animation was playing, apply as soon as possible. */
+let latestOptionChoice = null;
+/** The div tag that contains the current scene's background image. */
 let currentBackgroundImage = null;
+/** Make a choice based on a keyboard event. */
 let keyboardHandler = null;
 function runInBrowser(sceneFunction) {
-    lastClickedButton = null;
+    latestOptionChoice = null;
     if (sceneFunction !== scenes.loadGame) {
         let sceneId = getSceneId(sceneFunction);
         if (sceneId) {
@@ -638,6 +645,25 @@ function runInBrowser(sceneFunction) {
         }
     }
     let scene = sceneFunction();
+    /** Try to click on a certain option. */
+    function chooseOption(option) {
+        function applyChoise() {
+            // Ensure we never press a button that isn't connected to the current scene:
+            if (sceneUniqueId !== currentSceneUniqueId)
+                return;
+            if (option.sideEffects) {
+                option.sideEffects();
+            }
+            runInBrowser(option.scene);
+        }
+        // Ensure smooth animations:
+        if (flipAnimationInProgress) {
+            latestOptionChoice = applyChoise;
+        }
+        else {
+            applyChoise();
+        }
+    }
     keyboardHandler = (event) => {
         let number = parseInt(event.key);
         if (isNaN(number))
@@ -649,10 +675,7 @@ function runInBrowser(sceneFunction) {
         if (number >= scene.options.length)
             return;
         let option = scene.options[number];
-        if (option.sideEffects) {
-            option.sideEffects();
-        }
-        runInBrowser(option.scene);
+        chooseOption(option);
     };
     sceneUniqueId++;
     let currentSceneUniqueId = sceneUniqueId;
@@ -680,6 +703,7 @@ function runInBrowser(sceneFunction) {
             currentBackgroundImage = image;
         }
     }
+    /** Update the front of a certain page (this is the side of the page with the button on). */
     function updateFrontside(page) {
         let pageNr = page.querySelector('.side-1 .pagenr');
         if (!pageNr)
@@ -707,18 +731,7 @@ function runInBrowser(sceneFunction) {
             uiButton.classList.remove('unused');
             uiButton.textContent = (i + 1).toString() + ". " + option.text;
             uiButton.onclick = function () {
-                // Ensure smooth animations:
-                if (flipAnimationInProgress) {
-                    lastClickedButton = uiButton;
-                    return;
-                }
-                // Ensure we never press a button that isn't connected to the current scene:
-                if (sceneUniqueId !== currentSceneUniqueId)
-                    return;
-                if (option.sideEffects) {
-                    option.sideEffects();
-                }
-                runInBrowser(option.scene);
+                chooseOption(option);
             };
         }
     }
@@ -751,10 +764,12 @@ function runInBrowser(sceneFunction) {
             updateFirstPages();
             resetBookFlip();
             flipAnimationInProgress = false;
-            if (lastClickedButton) {
-                lastClickedButton.click();
-                lastClickedButton = null;
-            }
+            setTimeout(function () {
+                if (latestOptionChoice) {
+                    latestOptionChoice();
+                    latestOptionChoice = null;
+                }
+            }, 10);
         }, 1000);
     }
     else {
