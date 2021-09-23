@@ -643,8 +643,6 @@ function runInBrowser(sceneFunction) {
     let pageNum2 = pageFlipCount * 2 + 2;
     pageFlipCount++;
     let pages = Array.from(document.querySelectorAll('.page'));
-
-
     let previousBackgroundImage = currentBackgroundImage;
     for (let image of Array.from(document.querySelectorAll('#background-images div'))) {
         if (!previousBackgroundImage) {
@@ -665,13 +663,20 @@ function runInBrowser(sceneFunction) {
             currentBackgroundImage = image;
         }
     }
-
-
     function updateFrontside(page) {
         let pageNr = page.querySelector('.side-1 .pagenr');
         if (!pageNr)
             throw new Error(`Can't find pageNr element`);
         pageNr.textContent = pageNum2.toString();
+        // Mobile friendly text:
+        let h2 = page.querySelector('.side-1 .content .pageTitle');
+        if (!h2)
+            throw new Error('Cant find page title element');
+        h2.textContent = scene.title;
+        let p = page.querySelector('.side-1 .content .text');
+        if (!p)
+            throw new Error('Cant find page text element');
+        p.textContent = scene.desc;
         let uiButtons = Array.from(page.querySelectorAll("button"));
         for (let button of uiButtons) {
             button.classList.add('unused');
@@ -701,11 +706,11 @@ function runInBrowser(sceneFunction) {
         }
     }
     function updateBackside(page) {
-        let h2 = page.querySelector('.content .pageTitle');
+        let h2 = page.querySelector('.side-2 .content .pageTitle');
         if (!h2)
             throw new Error('Cant find page title element');
         h2.textContent = scene.title;
-        let p = page.querySelector('.content .text');
+        let p = page.querySelector('.side-2 .content .text');
         if (!p)
             throw new Error('Cant find page text element');
         p.textContent = scene.desc;
