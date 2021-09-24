@@ -706,7 +706,6 @@ function restoreStateFromSaveData(data: SaveData) {
 }
 
 
-
 /** Just true when first starting the game. */
 let firstFlip = true;
 /** A number that is unique to the current scene, ensures options are always related to the current scene. */
@@ -748,6 +747,8 @@ function runInBrowser(sceneFunction: () => Scene) {
         }
     }
 
+
+
     let scene = sceneFunction();
     scene.options = scene.options.filter(function (option) {
         if (option.enabled === undefined) return true;
@@ -759,7 +760,6 @@ function runInBrowser(sceneFunction: () => Scene) {
         function applyChoise() {
             // Ensure we never press a button that isn't connected to the current scene:
             if (sceneUniqueId !== currentSceneUniqueId) return;
-
             if (option.sideEffects) {
                 option.sideEffects();
             }

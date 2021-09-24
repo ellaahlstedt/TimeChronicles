@@ -85,10 +85,7 @@ h3 {
 }
 
 ::-webkit-scrollbar {width:12px}
-body::-webkit-scrollbar-thumb {
-    background: #222;
-    color: red;
-}
+::-webkit-scrollbar-thumb {background: #222;}
 ::-webkit-scrollbar-track {background: transparent}
 
 .btn-outline-primary {
