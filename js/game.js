@@ -64,6 +64,9 @@ let scenes = {
                 {
                     text: "This sounds pretty serious! You should bring this letter and the artifact to your companions and see if they have any insights.",
                     scene: scenes.companions,
+                    sideEffects: function () {
+                        inventory.add("timeArtifact");
+                    }
                 }
             ],
             backImg: "./img/inn.png",
@@ -110,8 +113,8 @@ let scenes = {
             desc: `Convinced the quest is a treacherous waste of time, you move on, business as usual. Some time shortly thereafter, you’re approached by a cloaked figure, it turns dark and you feel no more.`,
             options: [
                 {
-                    text: "Game over",
-                    scene: scenes.intro,
+                    text: "The end",
+                    scene: scenes.end,
                 }
             ],
             backImg: "./img/villageNight.png",
@@ -139,6 +142,42 @@ let scenes = {
         };
     },
     frontGate: function () {
+        return {
+            title: 'Infiltrating the castle - Front gate',
+            desc: `Determined to enter this place head on, your firm warrior Leroy charges ahead into the main hallway with a fierce battle cry!
+            With any sense of suddulty gone, you've catched the attention of a dragon, leaving you with no choice but to:`,
+            options: [
+                {
+                    text: "Engage the dragon in combat.",
+                    scene: scenes.avoidScam,
+                },
+                {
+                    text: "Perform a tactical retreat.",
+                    scene: scenes.companions,
+                }
+            ],
+            backImg: "./img/frontgate.png",
+        };
+    },
+    dragonRetreat: function () {
+        return {
+            title: 'Infiltrating the castle - Front gate',
+            desc: `Determined to enter this place head on, your firm warrior Leroy charges ahead into the main hallway with a fierce battle cry!
+            With any sense of suddulty gone, you've catched the attention of a dragon, leaving you with no choice but to:`,
+            options: [
+                {
+                    text: "Engage the dragon in combat.",
+                    scene: scenes.avoidScam,
+                },
+                {
+                    text: "Perform a tactical retreat.",
+                    scene: scenes.companions,
+                }
+            ],
+            backImg: "./img/frontgate.png",
+        };
+    },
+    dragonBattle: function () {
         return {
             title: 'Infiltrating the castle - Front gate',
             desc: `Determined to enter this place head on, your firm warrior Leroy charges ahead into the main hallway with a fierce battle cry!
@@ -227,6 +266,23 @@ let scenes = {
             backImg: "./img/staircase2.png",
         };
     },
+    kitchen: function () {
+        return {
+            title: 'Infiltrating the castle - Kitchen',
+            desc: ``,
+            options: [
+                {
+                    text: "Going through the library.",
+                    scene: scenes.libraryClues,
+                },
+                {
+                    text: "Turning away to find another room.",
+                    scene: scenes.stairs,
+                }
+            ],
+            backImg: "./img/library.png",
+        };
+    },
     library: function () {
         return {
             title: 'Infiltrating the castle - Library',
@@ -263,6 +319,47 @@ let scenes = {
                     text: "Use time artifact.",
                     scene: scenes.stairs,
                 }
+            ],
+            backImg: "./img/library.png",
+        };
+    },
+    libraryPast: function () {
+        return {
+            title: 'Infiltrating the castle - Library - Clues',
+            desc: `After having traversed the stil environment in a search for the right texts on their corresponding shelves, you attain a book titled “The Unique Entities of Castle Alzheim”, which details the nature of various items confined here including a time artifact. The time artifact is described as a warped matter capable of altering four-dimensional past timelines provided they’re justified in parallel formation and within its range of 24 hours which can’t be offseted. This power originates from another secretive art called “Portus” which unlike the time artifact also brings one back in space for better or worse. 
+            
+            Just as you’re about to leave, a ragged crooked-looking humanoid creature enters the room, instantly beginning to conjure up a horde of undead summonings upon noticing your presence. Countering this you:`,
+            options: [
+                {
+                    text: "Charge the main foe",
+                    scene: scenes.frontGate,
+                },
+                {
+                    text: "Fend off the summonings.",
+                    scene: scenes.stairs,
+                },
+                {
+                    text: "Use time artifact.",
+                    scene: scenes.stairs,
+                }
+            ],
+            backImg: "./img/library.png",
+        };
+    },
+    throneRoom: function () {
+        return {
+            title: 'Infiltrating the castle - Throne room',
+            desc: `Infiltrating the castle - throne room:
+            The center of attention here is a locked chest upon a pedestal, you figure that to unlock the contraption some kind of puzzle must be solved. Observing your immediate surroundings with this in mind, you notice a pressure plate in the floor which only when held pressed opens a wall into an indented area including two levers. Cooperating with your companions this task seems easy enough, you stand on the pressure plate while.`,
+            options: [
+                {
+                    text: "Charge the main foe",
+                    scene: scenes.frontGate,
+                },
+                {
+                    text: "Fend off the summonings.",
+                    scene: scenes.stairs,
+                },
             ],
             backImg: "./img/library.png",
         };
@@ -310,6 +407,7 @@ let scenes = {
             title: `Infiltrating the castle - artifact chamber`,
             desc: `You come before a gate demanding a password for access to its contents. Many words and phrases that you’ve picked up from observations throughout the castle crosses your mind, but you are hesitant to propose any incorrect password given the risk of disallowance to pass should you lack information or misinterpret the key to this lock more than once. You:`,
             options,
+            backImg: "./img/gate.jpg",
         };
     },
     artifactChamberKnocking: function () {
@@ -417,13 +515,14 @@ let scenes = {
                     text: "Continue",
                     scene: scenes.gotThrough,
                 },
-            ]
+            ],
+            backImg: "./img/gate.jpg",
         };
     },
     gotThrough: function () {
         return {
             title: 'Got through',
-            desc: `Now having reached the final step of your quest, you prepare an envelope, writing down the same text as in the received letter from the start but also stopping to ponder for a moment on what you’d really prefer to do here, finally going through with:`,
+            desc: `Now having reached the final step of this quest, you prepare an envelope, writing down the same text as in the received letter from the start but also stopping to ponder for a moment on what you’d really prefer to do here, finally going through with:`,
             options: [
                 {
                     text: "Putting the stolen artifact in the letter.",
@@ -444,7 +543,7 @@ let scenes = {
             options: [
                 {
                     text: "The end",
-                    scene: scenes.intro,
+                    scene: scenes.end,
                 }
             ],
             backImg: "./img/inn.png"
@@ -476,7 +575,7 @@ let scenes = {
             options: [
                 {
                     text: "The end",
-                    scene: scenes.intro,
+                    scene: scenes.loadGame,
                 }
             ],
             backImg: "./img/inn.png"
@@ -510,7 +609,7 @@ let scenes = {
             options: [
                 {
                     text: "The end",
-                    scene: scenes.intro,
+                    scene: scenes.loadGame,
                 }
             ],
             backImg: "./img/villageNight.png"
@@ -531,6 +630,19 @@ let scenes = {
                 },
             ],
             backImg: "./img/villageNight.png"
+        };
+    },
+    end: function () {
+        return {
+            title: 'The End',
+            desc: 'Insert titles of last scenes',
+            options: [
+                {
+                    text: "Return to main menu",
+                    scene: scenes.loadGame,
+                }
+            ],
+            backImg: "./img/mainBg.jpg"
         };
     }
 };
