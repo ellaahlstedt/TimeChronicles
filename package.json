@@ -10,7 +10,7 @@
     "serve": "ws",
     "denoBuild": "deno bundle --config deno.json ./game.ts ./js/game.js",
     "denoWatch": "deno bundle --watch --config deno.json ./game.ts ./js/game.js",
-    "terminal": "deno run --config deno.json ./game.ts"
+    "terminal": "deno run --allow-read=./ --config deno.json ./game.ts"
   },
   "author": "",
   "license": "ISC",

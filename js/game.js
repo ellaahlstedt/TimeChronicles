@@ -1,6 +1,6 @@
 "use strict";
 let inventoryItems = {
-    TestItem: false,
+    timeArtifact: false,
     invisibilityCloak: false,
 };
 function deepCopy(obj) {
@@ -58,14 +58,15 @@ let scenes = {
                     text: "Nonsense! You don’t believe in any of this! You should investigate if this artifact even does anything at all.",
                     scene: scenes.avoidScam,
                     sideEffects: function () {
-                        inventory.add("TestItem");
+                        inventory.add("timeArtifact");
                     }
                 },
                 {
                     text: "This sounds pretty serious! You should bring this letter and the artifact to your companions and see if they have any insights.",
                     scene: scenes.companions,
                 }
-            ]
+            ],
+            backImg: "./img/inn.png",
         };
     },
     companions: function () {
@@ -78,6 +79,7 @@ let scenes = {
                     scene: scenes.castleEntry,
                 }
             ],
+            backImg: "./img/houseNight.png",
         };
     },
     avoidScam: function () {
@@ -96,8 +98,10 @@ let scenes = {
                 {
                     text: "Turn down this quest entirely.",
                     scene: scenes.endingPhantomTrick,
-                }
+                    enabled: inventory.contains("timeArtifact"),
+                },
             ],
+            backImg: "./img/inn.png",
         };
     },
     endingPhantomTrick: function () {
@@ -110,6 +114,7 @@ let scenes = {
                     scene: scenes.intro,
                 }
             ],
+            backImg: "./img/villageNight.png",
         };
     },
     castleEntry: function () {
@@ -130,6 +135,7 @@ let scenes = {
                     scene: scenes.entryInspection,
                 }
             ],
+            backImg: "./img/castleDay.png",
         };
     },
     frontGate: function () {
@@ -146,7 +152,8 @@ let scenes = {
                     text: "Perform a tactical retreat.",
                     scene: scenes.companions,
                 }
-            ]
+            ],
+            backImg: "./img/frontgate.png",
         };
     },
     dungeonsDesolate: function () {
@@ -158,7 +165,8 @@ let scenes = {
                     text: "Continue",
                     scene: scenes.stairs,
                 }
-            ]
+            ],
+            backImg: "./img/hallway2.png",
         };
     },
     dungeonsSpiders: function () {
@@ -170,10 +178,18 @@ let scenes = {
                     text: "Continue",
                     scene: scenes.stairs,
                 }
-            ]
+            ],
+            backImg: "./img/dungeon.png",
         };
     },
     entryInspection: function () {
+        let randomDungeonsInspection;
+        if (randomDungeonsScene === scenes.dungeonsDesolate) {
+            randomDungeonsInspection = ' The dungeons quietly sound with dripping liquids.';
+        }
+        else {
+            randomDungeonsInspection = ' The dungeons echo with many light footsteps in bursts.';
+        }
         return {
             title: 'Infiltrating the castle - Inspection of entry',
             desc: `Taking the time not to run in blind, you listen very closely for any signs of what’s happening in there. You hear the sound of a faint breath and sense heat in irregular waves from the front gate.` + randomDungeonsInspection,
@@ -186,7 +202,8 @@ let scenes = {
                     text: "Enter dungeons.",
                     scene: randomDungeonsScene,
                 }
-            ]
+            ],
+            backImg: "./img/castleDay.png",
         };
     },
     stairs: function () {
@@ -207,6 +224,7 @@ let scenes = {
                     scene: scenes.entryInspection,
                 }
             ],
+            backImg: "./img/staircase2.png",
         };
     },
     library: function () {
@@ -222,7 +240,8 @@ let scenes = {
                     text: "Turning away to find another room.",
                     scene: scenes.stairs,
                 }
-            ]
+            ],
+            backImg: "./img/library.png",
         };
     },
     libraryClues: function () {
@@ -244,111 +263,149 @@ let scenes = {
                     text: "Use time artifact.",
                     scene: scenes.stairs,
                 }
-            ]
+            ],
+            backImg: "./img/library.png",
         };
     },
     artifactChamber: function () {
+        function getRandomResult(index) {
+            if (index === randomPasswordIndex) {
+                return scenes.timeArtifact;
+            }
+            else {
+                return scenes.artifactChamberRejection;
+            }
+        }
+        let options = [
+            {
+                text: "Speak the password “Warped matter”.",
+                scene: getRandomResult(0),
+            },
+            {
+                text: "Speak the password “More time to stop the key from turning”",
+                scene: getRandomResult(1),
+            },
+            {
+                text: "Speak the password “Justify the four-dimensional branches”",
+                scene: getRandomResult(2),
+            },
+            {
+                text: "Speak the password “Portus”.",
+                scene: getRandomResult(3),
+            },
+            {
+                text: "Speak the password “Second parallel timeline”",
+                scene: getRandomResult(4),
+            },
+            {
+                text: "Password? Just knock on the gate.",
+                scene: scenes.artifactChamberKnocking,
+            },
+            {
+                text: "Turn away from the gate to search elsewhere.",
+                scene: scenes.stairs,
+            },
+        ];
         return {
             title: `Infiltrating the castle - artifact chamber`,
             desc: `You come before a gate demanding a password for access to its contents. Many words and phrases that you’ve picked up from observations throughout the castle crosses your mind, but you are hesitant to propose any incorrect password given the risk of disallowance to pass should you lack information or misinterpret the key to this lock more than once. You:`,
-            options: [
-                {
-                    text: "Speak the password “Warped matter”.",
-                    scene: randomOutcome1,
-                },
-                {
-                    text: "Speak the password “More time to stop the key from turning”",
-                    scene: randomOutcome2,
-                },
-                {
-                    text: "Speak the password “Justify the four-dimensional branches”",
-                    scene: randomOutcome3,
-                },
-                {
-                    text: "Speak the password “Portus”.",
-                    scene: randomOutcome4,
-                },
-                {
-                    text: "Speak the password “Second parallel timeline”",
-                    scene: randomOutcome5,
-                },
-                {
-                    text: "Password? Just knock on the gate.",
-                    scene: scenes.artifactChamberKnocking,
-                },
-                {
-                    text: "Turn away from the gate to search elsewhere.",
-                    scene: scenes.stairs,
-                },
-            ],
+            options,
         };
     },
     artifactChamberKnocking: function () {
+        function getRandomResult(index) {
+            if (index === randomPasswordIndex) {
+                return scenes.timeArtifact;
+            }
+            else {
+                return scenes.artifactChamberRejection;
+            }
+        }
+        let options = [
+            {
+                text: "Speak the password “Warped matter”.",
+                scene: getRandomResult(0),
+            },
+            {
+                text: "Speak the password “More time to stop the key from turning”",
+                scene: getRandomResult(1),
+            },
+            {
+                text: "Speak the password “Justify the four-dimensional branches”",
+                scene: getRandomResult(2),
+            },
+            {
+                text: "Speak the password “Portus”.",
+                scene: getRandomResult(3),
+            },
+            {
+                text: "Speak the password “Second parallel timeline”",
+                scene: getRandomResult(4),
+            },
+            {
+                text: "Turn away from the gate to search elsewhere.",
+                scene: scenes.stairs,
+            },
+        ];
+        // Remember the option that we click on:
+        for (let i = 0; i < 5; i++) {
+            options[i].sideEffects = function () {
+                // Exploit inventory to save data:
+                inventoryItems.guessedPassword = i;
+            };
+        }
         return {
             title: `Infiltrating the castle - artifact chamber - Go knocking`,
             desc: `You knock on the gate, but nothing happens. You knock again and this time with all your might as hard as you can, but alas, it’s to no effect...Reconsidering everything, you:`,
-            options: [
-                {
-                    text: "Speak the password “Warped matter”.",
-                    scene: randomOutcome1,
-                },
-                {
-                    text: "Speak the password “More time to stop the key from turning”",
-                    scene: randomOutcome2,
-                },
-                {
-                    text: "Speak the password “Justify the four-dimensional branches”",
-                    scene: randomOutcome3,
-                },
-                {
-                    text: "Speak the password “Portus”.",
-                    scene: randomOutcome4,
-                },
-                {
-                    text: "Speak the password “Second parallel timeline”",
-                    scene: randomOutcome5,
-                },
-                {
-                    text: "Turn away from the gate to search elsewhere.",
-                    scene: scenes.frontGate,
-                },
-            ],
+            options,
+            backImg: "./img/gate.jpg",
         };
     },
     artifactChamberRejection: function () {
+        function getRandomResult(index) {
+            if (index === randomPasswordIndex) {
+                return scenes.timeArtifact;
+            }
+            else {
+                return scenes.artifactChamberRejection;
+            }
+        }
+        let options = [
+            {
+                text: "Speak the password “Warped matter”.",
+                scene: getRandomResult(0),
+            },
+            {
+                text: "Speak the password “More time to stop the key from turning”",
+                scene: getRandomResult(1),
+            },
+            {
+                text: "Speak the password “Justify the four-dimensional branches”",
+                scene: getRandomResult(2),
+            },
+            {
+                text: "Speak the password “Portus”.",
+                scene: getRandomResult(3),
+            },
+            {
+                text: "Speak the password “Second parallel timeline”",
+                scene: getRandomResult(4),
+            },
+            {
+                text: "Password? Just knock on the gate.",
+                scene: scenes.artifactChamberKnocking,
+            },
+            {
+                text: "Turn away from the gate to search elsewhere.",
+                scene: scenes.stairs,
+            },
+        ];
+        // Remove the option that was used in the previous scene:
+        options.splice(inventoryItems.guessedPassword, 1);
         return {
             title: `Infiltrating the castle - Artifact chamber - Access denied`,
             desc: `The door reacts disapprovingly, keeping itself shut while whispering “Access denied!”. Considering a final attempt to unlock this gate, you:`,
-            options: [
-                {
-                    text: "Speak the password “Warped matter”.",
-                    scene: randomOutcome1,
-                },
-                {
-                    text: "Speak the password “More time to stop the key from turning”",
-                    scene: randomOutcome2,
-                },
-                {
-                    text: "Speak the password “Justify the four-dimensional branches”",
-                    scene: randomOutcome3,
-                },
-                {
-                    text: "Speak the password “Portus”.",
-                    scene: randomOutcome4,
-                },
-                {
-                    text: "Speak the password “Second parallel timeline”",
-                    scene: randomOutcome5,
-                },
-                {
-                    text: "Password? Just knock on the gate.",
-                    scene: scenes.artifactChamberKnocking,
-                },
-                {
-                    text: "Turn away from the gate to search elsewhere.",
-                    scene: scenes.stairs,
-                },
-            ],
+            options,
         };
     },
     timeArtifact: function () {
@@ -376,7 +433,8 @@ let scenes = {
                     text: "Putting the artifact from the letter in the letter.",
                     scene: scenes.keepStolenArtifact,
                 }
-            ]
+            ],
+            backImg: "./img/houseNight.png"
         };
     },
     endingNofunnyIdeas: function () {
@@ -388,7 +446,8 @@ let scenes = {
                     text: "The end",
                     scene: scenes.intro,
                 }
-            ]
+            ],
+            backImg: "./img/inn.png"
         };
     },
     keepStolenArtifact: function () {
@@ -406,7 +465,8 @@ let scenes = {
                     text: "Perhaps it was naive to think that you would get out of this mess with something for it. Just give them the artifact and wash your hands from all of this trouble.",
                     scene: scenes.stairs,
                 }
-            ]
+            ],
+            backImg: "./img/villageNight.png"
         };
     },
     noTrouble: function () {
@@ -418,7 +478,8 @@ let scenes = {
                     text: "The end",
                     scene: scenes.intro,
                 }
-            ]
+            ],
+            backImg: "./img/inn.png"
         };
     },
     artifactBargin: function () {
@@ -438,7 +499,8 @@ let scenes = {
                     text: "Do they take you for an idiot? Obviously you can make a near limitless amount of gold by just using the time artifact yourself. There is no way you will agree to give it away!",
                     scene: scenes.stairs,
                 }
-            ]
+            ],
+            backImg: "./img/villageNight.png"
         };
     },
     artifactGreedNeed: function () {
@@ -450,7 +512,8 @@ let scenes = {
                     text: "The end",
                     scene: scenes.intro,
                 }
-            ]
+            ],
+            backImg: "./img/villageNight.png"
         };
     },
     artifactBlackmail: function () {
@@ -466,65 +529,11 @@ let scenes = {
                     text: "That will do, let’s make the deal.",
                     scene: scenes.stairs,
                 },
-            ]
+            ],
+            backImg: "./img/villageNight.png"
         };
     }
 };
-/** Get a random element in an array. */
-function chooseRandomElement(array) {
-    if (array.length === 0) {
-        throw new Error('Array must contain at least 1 element');
-    }
-    return array[Math.floor(Math.random() * array.length)];
-}
-let randomDungeonsScene = chooseRandomElement([scenes.dungeonsDesolate, scenes.dungeonsSpiders]);
-let randomDungeonsInspection;
-if (randomDungeonsScene === scenes.dungeonsDesolate) {
-    randomDungeonsInspection = ' The dungeons quietly sound with dripping liquids.';
-}
-else {
-    randomDungeonsInspection = ' The dungeons echo with many light footsteps in bursts.';
-}
-let randomOutcome1 = chooseRandomElement([scenes.timeArtifact, scenes.artifactChamberRejection]);
-let randomLeads1;
-if (randomOutcome1 === scenes.timeArtifact) {
-    randomLeads1 = ' ';
-}
-else {
-    randomLeads1 = ' ';
-}
-let randomOutcome2 = chooseRandomElement([scenes.timeArtifact, scenes.artifactChamberRejection]);
-let randomLeads2;
-if (randomOutcome2 === scenes.timeArtifact) {
-    randomLeads2 = ' ';
-}
-else {
-    randomLeads2 = ' ';
-}
-let randomOutcome3 = chooseRandomElement([scenes.timeArtifact, scenes.artifactChamberRejection]);
-let randomLeads3;
-if (randomOutcome3 === scenes.timeArtifact) {
-    randomLeads3 = ' ';
-}
-else {
-    randomLeads3 = ' ';
-}
-let randomOutcome4 = chooseRandomElement([scenes.timeArtifact, scenes.artifactChamberRejection]);
-let randomLeads4;
-if (randomOutcome4 === scenes.timeArtifact) {
-    randomLeads4 = ' ';
-}
-else {
-    randomLeads4 = ' ';
-}
-let randomOutcome5 = chooseRandomElement([scenes.timeArtifact, scenes.artifactChamberRejection]);
-let randomLeads5;
-if (randomOutcome5 === scenes.timeArtifact) {
-    randomLeads5 = ' ';
-}
-else {
-    randomLeads5 = ' ';
-}
 /** Get a scene's id as a string. */
 function getSceneId(sceneFunction) {
     for (let id of Object.keys(scenes)) {
@@ -545,6 +554,11 @@ function getSceneFunction(sceneId) {
 function runInDeno(sceneFunction) {
     while (true) {
         let scene = sceneFunction();
+        scene.options = scene.options.filter(function (option) {
+            if (option.enabled === undefined)
+                return true;
+            return option.enabled;
+        });
         console.log('   ' + scene.title);
         console.log();
         console.log(scene.desc);
@@ -592,6 +606,15 @@ function runInDeno(sceneFunction) {
         sceneFunction = selectedOption.scene;
     }
 }
+/** Get a random element in an array. */
+function chooseRandomElement(array) {
+    if (array.length === 0) {
+        throw new Error('Array must contain at least 1 element');
+    }
+    return array[Math.floor(Math.random() * array.length)];
+}
+let randomDungeonsScene;
+let randomPasswordIndex = 0;
 function save(data) {
     try {
         localStorage.setItem('saveData', JSON.stringify(data));
@@ -615,6 +638,18 @@ function load() {
         return null;
     }
 }
+function restoreStateFromSaveData(data) {
+    inventory.fromSaveData(data.inventory);
+    pageFlipCount = data.pageFlipCount;
+    if (isNaN(pageFlipCount)) {
+        pageFlipCount = 1;
+    }
+    randomPasswordIndex = data.randomPasswordIndex;
+    let sceneFunction = getSceneFunction(data.randomDungenonsScene);
+    if (!sceneFunction)
+        throw new Error(`Can't load save data`);
+    randomDungeonsScene = sceneFunction;
+}
 /** Just true when first starting the game. */
 let firstFlip = true;
 /** A number that is unique to the current scene, ensures options are always related to the current scene. */
@@ -631,13 +666,24 @@ let currentBackgroundImage = null;
 let keyboardHandler = null;
 function runInBrowser(sceneFunction) {
     latestOptionChoice = null;
+    if (sceneFunction === scenes.intro) {
+        // New Game setup:
+        randomPasswordIndex = Math.floor(Math.random() * 5);
+        randomDungeonsScene = chooseRandomElement([scenes.dungeonsDesolate, scenes.dungeonsSpiders]);
+    }
+    let sceneId = getSceneId(sceneFunction);
     if (sceneFunction !== scenes.loadGame) {
-        let sceneId = getSceneId(sceneFunction);
+        // Save game:
         if (sceneId) {
+            let randomDungeonsSceneId = getSceneId(randomDungeonsScene);
+            if (!randomDungeonsSceneId)
+                throw new Error('Failed to save randomDungenonsScene');
             save({
                 sceneId: sceneId,
                 inventory: inventory.toSaveData(),
                 pageFlipCount,
+                randomPasswordIndex,
+                randomDungenonsScene: randomDungeonsSceneId,
             });
         }
         else {
@@ -645,6 +691,12 @@ function runInBrowser(sceneFunction) {
         }
     }
     let scene = sceneFunction();
+    scene.options = scene.options.filter(function (option) {
+        if (option.enabled === undefined)
+            return true;
+        else
+            return option.enabled;
+    });
     /** Try to click on a certain option. */
     function chooseOption(option) {
         function applyChoise() {
@@ -689,11 +741,21 @@ function runInBrowser(sceneFunction) {
             // Just fade away the first div when game is started.
             previousBackgroundImage = image;
         }
+        // 1. Take unused hidden image div and move it behind / last.
+        // 2. Update the hidden div's background-image property.
+        // 3. Show the hidden div (after delay so that it has time to be moved behind the current div)
+        // 4. Start fading away the current div.
         if (image === previousBackgroundImage) {
-            image.classList.add('fadeAway');
+            setTimeout(function () {
+                image.classList.add('fadeAway');
+            }, 30);
         }
         else {
-            image.classList.remove('fadeAway');
+            // Ensure new image div is always after the one that is fading away:
+            let backgroundImages = document.getElementById("background-images");
+            if (!backgroundImages)
+                throw new Error("Can't get background-images");
+            backgroundImages.appendChild(image);
             if (scene.backImg) {
                 image.setAttribute("style", `background-image: url(${scene.backImg});`);
             }
@@ -701,10 +763,19 @@ function runInBrowser(sceneFunction) {
                 image.removeAttribute("style");
             }
             currentBackgroundImage = image;
+            setTimeout(function () {
+                image.classList.remove('fadeAway');
+            }, 20);
         }
     }
-    /** Update the front of a certain page (this is the side of the page with the button on). */
+    /** Update the front of a certain page (this is the side of the page with the buttons on). */
     function updateFrontside(page) {
+        let side = page.querySelector('.side-1');
+        if (!side)
+            throw new Error(`Can't get side element`);
+        if (sceneId) {
+            side.setAttribute('data-scene-id', sceneId);
+        }
         let pageNr = page.querySelector('.side-1 .pagenr');
         if (!pageNr)
             throw new Error(`Can't find pageNr element`);
@@ -736,6 +807,12 @@ function runInBrowser(sceneFunction) {
         }
     }
     function updateBackside(page) {
+        let side = page.querySelector('.side-2');
+        if (!side)
+            throw new Error(`Can't get side element`);
+        if (sceneId) {
+            side.setAttribute('data-scene-id', sceneId);
+        }
         let h2 = page.querySelector('.side-2 .content .pageTitle');
         if (!h2)
             throw new Error('Cant find page title element');
@@ -763,8 +840,8 @@ function runInBrowser(sceneFunction) {
         setTimeout(function () {
             updateFirstPages();
             resetBookFlip();
-            flipAnimationInProgress = false;
             setTimeout(function () {
+                flipAnimationInProgress = false;
                 if (latestOptionChoice) {
                     latestOptionChoice();
                     latestOptionChoice = null;
@@ -800,15 +877,49 @@ function resetBookFlip() {
         setTimeout(function () { document.body.classList.remove('flipping-back'); }, 20);
     }
 }
-function restoreStateFromSaveData(data) {
-    inventory.fromSaveData(data.inventory);
-    pageFlipCount = data.pageFlipCount;
-    if (isNaN(pageFlipCount)) {
-        pageFlipCount = 1;
-    }
-}
 if ('Deno' in window) {
-    runInDeno(scenes.intro);
+    let Deno = window.Deno;
+    const exists = async (filename) => {
+        try {
+            await Deno.stat(filename);
+            // successful, file or directory must exist
+            return true;
+        }
+        catch (error) {
+            if (error instanceof Deno.errors.NotFound) {
+                // file or directory does not exist
+                return false;
+            }
+            else {
+                // unexpected error, maybe permissions, pass it along
+                throw error;
+            }
+        }
+    };
+    let checks = [];
+    for (let sceneId of Object.keys(scenes)) {
+        let sceneFunction = getSceneFunction(sceneId);
+        if (!sceneFunction)
+            continue;
+        let scene = sceneFunction();
+        if (scene.backImg) {
+            checks.push(exists(scene.backImg).then(function (fileExists) {
+                if (!fileExists) {
+                    console.log(`--> Missing background image: `, scene.backImg);
+                }
+                else {
+                    console.log(`Checked background image: `, scene.backImg);
+                }
+            }).catch(function (error) {
+                console.error(`Failed to check if the background image "${scene.backImg}" exists:`, error);
+            }));
+        }
+    }
+    Promise.all(checks).catch(function () {
+        return null;
+    }).then(function () {
+        runInDeno(scenes.intro);
+    });
 }
 else {
     // Duplicate book pages:

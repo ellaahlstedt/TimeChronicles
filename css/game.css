@@ -15,7 +15,11 @@ body {
     overflow-y: hidden;
 }
 * {
-  cursor: url(../img/cursor_small.png), auto !important;
+  cursor: url(../img/cursor.png), auto !important;
+}
+
+*::-moz-selection, *::selection { 
+  color: rgb(25, 0, 255);
 }
 
 body * {
@@ -40,6 +44,9 @@ html, body {
   position: absolute;
   min-width: 100%;
   min-height: 100vh;
+}
+#background-images div:last-child {
+  z-index: -500;
 }
 #background-images div {
   background-image: url(../img/library.png);
@@ -66,6 +73,10 @@ h1 {
 h2 {
     font-family: 'Playfair Display', serif;
     font-size: 2rem;
+}
+.side-2[data-scene-id="loadGame"] h2 {
+  font-size: 5rem;
+  text-align: center;
 }
 
 h3 {
