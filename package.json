@@ -7,13 +7,15 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "watch": "tsc --watch",
+    "serve": "ws",
     "denoBuild": "deno bundle --config deno.json ./game.ts ./js/game.js",
     "denoWatch": "deno bundle --watch --config deno.json ./game.ts ./js/game.js",
-    "terminal": "deno run --config deno.json ./game.ts"
+    "terminal": "deno run --allow-read=./ --config deno.json ./game.ts"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "local-web-server": "^5.1.1",
     "typescript": "^4.4.3"
   }
 }

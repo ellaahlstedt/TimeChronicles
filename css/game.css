@@ -5,13 +5,7 @@
     color: #000;
 }
 
-.noAnimation * {
-  transition: none !important;
-  animation: none !important;
-}
-
 body {
-    background-image: url(../img/library.jpg);
     height: 100vh;
     background-position: center;
     background-repeat: no-repeat;
@@ -19,6 +13,13 @@ body {
 
     perspective: 70em;
     overflow-y: hidden;
+}
+* {
+  cursor: url(../img/cursor.png), auto !important;
+}
+
+*::-moz-selection, *::selection { 
+  color: rgb(25, 0, 255);
 }
 
 body * {
@@ -31,6 +32,33 @@ body.test {
 
 html, body {
     height: 100%;
+}
+
+
+#background-images {
+  z-index: -1000;
+  pointer-events: none;
+}
+#background-images,
+#background-images div {
+  position: absolute;
+  min-width: 100%;
+  min-height: 100vh;
+}
+#background-images div:last-child {
+  z-index: -500;
+}
+#background-images div {
+  background-image: url(../img/library.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  opacity: 1;
+}
+#background-images div.fadeAway {
+  transition: opacity 1s;
+  opacity: 0;
 }
 
 h1, p {
@@ -46,6 +74,10 @@ h2 {
     font-family: 'Playfair Display', serif;
     font-size: 2rem;
 }
+.side-2[data-scene-id="loadGame"] h2 {
+  font-size: 5rem;
+  text-align: center;
+}
 
 h3 {
     font-family: 'Playfair Display', serif;
@@ -53,7 +85,10 @@ h3 {
 }
 
 ::-webkit-scrollbar {width:12px}
-::-webkit-scrollbar-thumb {background: #222;}
+body::-webkit-scrollbar-thumb {
+    background: #222;
+    color: red;
+}
 ::-webkit-scrollbar-track {background: transparent}
 
 .btn-outline-primary {
@@ -161,10 +196,15 @@ h3 {
       rotateY(-180deg);
     pointer-events: none;
 }
-    
+
+body.flipping-back .no-anim,
+body.flipping-back .no-anim * {
+  transition: none !important;
+  animation: none !important;
+}
 .no-anim,
-    .no-anim:after {
-    animation: none;
+.no-anim:after {
+  animation: none;
 }
 
 @keyframes flip {
@@ -182,4 +222,24 @@ h3 {
       transform:
         rotateY(0deg);    
       }
+}
+
+
+.mobile-text {
+  display: none;
+}
+@media only screen and (max-width: 600px) {
+  .book {
+      height: 90%;
+      max-height: 800px;
+      min-height: 300px;
+      width: 180%;
+      margin-left: -80vw;
+  }
+  .side-2 .content {
+    opacity: 0;
+  }
+  .mobile-text {
+    display: unset;
+  }
 }
