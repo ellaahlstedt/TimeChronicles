@@ -26,10 +26,6 @@ body * {
     transform-style: preserve-3d; 
 }
 
-body.test {
-  background-image: url(../img/gate.jpg);
-}
-
 html, body {
     height: 100%;
 }
@@ -49,7 +45,7 @@ html, body {
   z-index: -500;
 }
 #background-images div {
-  background-image: url(../img/library.png);
+  background-image: url(../img/black.jpg);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -63,6 +59,10 @@ html, body {
 
 h1, p {
     margin: 5% 0;
+}
+
+.content .text {
+  white-space: pre-line;
 }
 
 h1 {
