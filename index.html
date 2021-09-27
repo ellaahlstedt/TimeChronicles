@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,38 +10,123 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+        crossorigin="anonymous"></script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito&family=Playfair+Display:wght@400;700&Newsreader&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito&family=Playfair+Display:wght@400;700&Newsreader&display=swap"
+        rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Newsreader&display=swap" rel="stylesheet">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/game.css">
+
+    <link rel="icon" type="image/png" href="favicon.ico" sizes='16x16'/>
 
     <title>Time Chronicles</title>
 </head>
+
 <body>
-    
-    <div class='book'>  
-        <div id='page-1' class='page no-anim'>    
-          <div class='side-1' id='p1'>
-
-            <div class='content text-center'>
-              <h1>Time Chronicles</h1>
-
-                <a href="inGame.html" class="btn btn-outline-dark btn-lg">Start Game</a>
-            </div><!-- .content -->
-
-          </div><!-- .side-1 -->   
-
-          
-      </div>
+    <div id="background-images">
+        <div></div>
+        <div></div>
     </div>
-    
 
+    <div class='book'>
+        <div class='page flipped'>
+            <div class='side-1'>
+                <p class="pagenr">2</p>
+
+                <div class='content'>
+                    <div class="mobile-text">
+                        <h2 class="pageTitle">Title</h2>
+                        <p class="text">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                            Curabitur eleifend eleifend lacus, sit amet elementum
+                            urna interdum vel. Nam porta lorem eu risus pharetra
+                            maximus. Proin sit amet purus in augue consequat
+                            mollis eu et mi. Donec suscipit consequat aliquam.
+                            Nam viverra, nisi vel fermentum euismod, turpis ex
+                            fermentum quam, nec venenatis quam lorem sed
+                            dolor.
+                        </p>
+                    </div>
+
+                    <p>
+                        Options:
+                    </p>
+
+                    <div class="container choices">
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <button type="button" class="btn btn-outline-dark btn-lg" value="1"
+                                    onClick="return changeScene(this)">
+                                    Choice 1
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <button type="button" class="btn btn-outline-dark btn-lg">
+                                    Choice 2
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <button type="button" class="btn btn-outline-dark btn-lg">
+                                    Choice 3
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <button type="button" class="btn btn-outline-dark btn-lg">
+                                    Choice 4
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div><!-- .content -->
+
+            </div><!-- .side-1 -->
+
+            <div class='side-2'>
+                <p class="pagenr">1</p>
+
+                <div class='content'>
+                    <h2 class="pageTitle">Title</h2>
+                    <p class="text">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                        Curabitur eleifend eleifend lacus, sit amet elementum
+                        urna interdum vel. Nam porta lorem eu risus pharetra
+                        maximus. Proin sit amet purus in augue consequat
+                        mollis eu et mi. Donec suscipit consequat aliquam.
+                        Nam viverra, nisi vel fermentum euismod, turpis ex
+                        fermentum quam, nec venenatis quam lorem sed
+                        dolor.
+                    </p>
+                </div><!-- .content -->
+
+            </div><!-- .side-2 -->
+
+        </div><!-- .page -->
 </body>
+
+<!-- <script src="js/test2.js"></script> -->
+<script src="js/book.js"></script>
+<script src="js/game.js"></script>
+
 </html>
