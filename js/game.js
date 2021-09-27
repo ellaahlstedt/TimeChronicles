@@ -1,44 +1,77 @@
 "use strict";
-let inventoryItems = {
-    timeArtifact: false,
-    invisibilityCloak: false,
-};
-function deepCopy(obj) {
-    return JSON.parse(JSON.stringify(obj));
+/** Get a random element in an array. */
+function chooseRandomElement(array) {
+    if (array.length === 0) {
+        throw new Error('Array must contain at least 1 element');
+    }
+    return array[Math.floor(Math.random() * array.length)];
 }
+/**Creates a valid game data object.
+ *
+ * Set up all game specific data, all of this data will be saved automatically. */
+function generateGameData() {
+    // Just add new things to the returned object and they will be automatically saved.
+    // Note: any functions stored inside this object should represent scenes, otherwise saving data will fail.
+    return {
+        /** The inventory of the player. */
+        inventory: {
+            timeArtifact: false,
+            invisibilityCloak: false,
+        },
+        /** The current scene. */
+        scene: scenes.intro,
+        /** Specifies which password is the correct one. */
+        randomPasswordIndex: Math.floor(Math.random() * 5),
+        /** Determines what happens if you enter the castle dungeons. */
+        randomDungeonsScene: chooseRandomElement([scenes.dungeonsDesolate, scenes.dungeonsSpiders]),
+        /** Used to update page numbers. */
+        pageFlipCount: 1,
+        /** Used when guessing passwords in certain scene. */
+        guessedPassword: 0,
+        /** Data that should be stored longer than a single game. */
+        statistics: {
+            totalPagesTurned: 0,
+            gamesCompleted: 0,
+            gamesStarted: 0,
+            /** Each key is a sceneId for a final scene and the value of each key is the number of times that ending was encountered. */
+            finalScenes: {},
+        },
+    };
+}
+/** Access or modify the inventory. */
 let inventory = {
     add: function (item) {
-        inventoryItems[item] = true;
+        gameData.inventory[item] = true;
     },
     contains: function (item) {
-        return inventoryItems[item];
+        return gameData.inventory[item];
     },
     remove: function (item) {
-        inventoryItems[item] = false;
-    },
-    toSaveData: function () {
-        return inventoryItems;
-    },
-    fromSaveData: function (data) {
-        inventoryItems = deepCopy(data);
+        gameData.inventory[item] = false;
     },
 };
-let defaultInventoryData = deepCopy(inventory.toSaveData());
-let loadedSceneFunction = null;
 let scenes = {
     loadGame: function () {
         let options = [
             {
                 text: `New Game`,
                 scene: scenes.intro,
+                sideEffects: function () {
+                    loadedGameData = null;
+                }
             },
         ];
-        if (loadedSceneFunction) {
+        if (loadedGameData) {
+            let gameDataToLoad = loadedGameData;
             options.push({
                 text: `Load Game`,
-                scene: loadedSceneFunction,
+                scene: gameDataToLoad.scene,
                 sideEffects: function () {
-                    restoreStateFromSaveData(load());
+                    let stats = gameData.statistics;
+                    gameData = gameDataToLoad;
+                    // Ensure we never forget stats:
+                    gameData.statistics = stats;
+                    loadedGameData = null;
                 },
             });
         }
@@ -64,9 +97,6 @@ let scenes = {
                 {
                     text: "This sounds pretty serious! You should bring this letter and the artifact to your companions and see if they have any insights.",
                     scene: scenes.companions,
-                    sideEffects: function () {
-                        inventory.add("timeArtifact");
-                    }
                 }
             ],
             backImg: "./img/inn.png",
@@ -82,7 +112,7 @@ let scenes = {
                     scene: scenes.castleEntry,
                 }
             ],
-            backImg: "./img/houseNight.png",
+            backImg: "./img/bar.jpg",
         };
     },
     avoidScam: function () {
@@ -104,7 +134,7 @@ let scenes = {
                     enabled: inventory.contains("timeArtifact"),
                 },
             ],
-            backImg: "./img/inn.png",
+            backImg: "./img/innNight.png",
         };
     },
     endingPhantomTrick: function () {
@@ -117,7 +147,6 @@ let scenes = {
                     scene: scenes.end,
                 }
             ],
-            backImg: "./img/villageNight.png",
         };
     },
     castleEntry: function () {
@@ -131,7 +160,7 @@ let scenes = {
                 },
                 {
                     text: "Enter dungeons.",
-                    scene: randomDungeonsScene,
+                    scene: gameData.randomDungeonsScene,
                 },
                 {
                     text: "Listen for signs of danger.",
@@ -149,7 +178,7 @@ let scenes = {
             options: [
                 {
                     text: "Engage the dragon in combat.",
-                    scene: scenes.avoidScam,
+                    scene: scenes.todo,
                 },
                 {
                     text: "Perform a tactical retreat.",
@@ -167,7 +196,7 @@ let scenes = {
             options: [
                 {
                     text: "Engage the dragon in combat.",
-                    scene: scenes.avoidScam,
+                    scene: scenes.todo,
                 },
                 {
                     text: "Perform a tactical retreat.",
@@ -185,7 +214,7 @@ let scenes = {
             options: [
                 {
                     text: "Engage the dragon in combat.",
-                    scene: scenes.avoidScam,
+                    scene: scenes.todo,
                 },
                 {
                     text: "Perform a tactical retreat.",
@@ -223,7 +252,7 @@ let scenes = {
     },
     entryInspection: function () {
         let randomDungeonsInspection;
-        if (randomDungeonsScene === scenes.dungeonsDesolate) {
+        if (gameData.randomDungeonsScene === scenes.dungeonsDesolate) {
             randomDungeonsInspection = ' The dungeons quietly sound with dripping liquids.';
         }
         else {
@@ -239,7 +268,7 @@ let scenes = {
                 },
                 {
                     text: "Enter dungeons.",
-                    scene: randomDungeonsScene,
+                    scene: gameData.randomDungeonsScene,
                 }
             ],
             backImg: "./img/castleDay.png",
@@ -309,15 +338,15 @@ let scenes = {
             options: [
                 {
                     text: "Charge the main foe",
-                    scene: scenes.frontGate,
+                    scene: scenes.todo,
                 },
                 {
                     text: "Fend off the summonings.",
-                    scene: scenes.stairs,
+                    scene: scenes.todo,
                 },
                 {
                     text: "Use time artifact.",
-                    scene: scenes.stairs,
+                    scene: scenes.todo,
                 }
             ],
             backImg: "./img/library.png",
@@ -332,15 +361,15 @@ let scenes = {
             options: [
                 {
                     text: "Charge the main foe",
-                    scene: scenes.frontGate,
+                    scene: scenes.todo,
                 },
                 {
                     text: "Fend off the summonings.",
-                    scene: scenes.stairs,
+                    scene: scenes.todo,
                 },
                 {
                     text: "Use time artifact.",
-                    scene: scenes.stairs,
+                    scene: scenes.todo,
                 }
             ],
             backImg: "./img/library.png",
@@ -354,7 +383,7 @@ let scenes = {
             options: [
                 {
                     text: "Charge the main foe",
-                    scene: scenes.frontGate,
+                    scene: scenes.todo,
                 },
                 {
                     text: "Fend off the summonings.",
@@ -366,7 +395,7 @@ let scenes = {
     },
     artifactChamber: function () {
         function getRandomResult(index) {
-            if (index === randomPasswordIndex) {
+            if (index === gameData.randomPasswordIndex) {
                 return scenes.timeArtifact;
             }
             else {
@@ -412,7 +441,7 @@ let scenes = {
     },
     artifactChamberKnocking: function () {
         function getRandomResult(index) {
-            if (index === randomPasswordIndex) {
+            if (index === gameData.randomPasswordIndex) {
                 return scenes.timeArtifact;
             }
             else {
@@ -448,8 +477,7 @@ let scenes = {
         // Remember the option that we click on:
         for (let i = 0; i < 5; i++) {
             options[i].sideEffects = function () {
-                // Exploit inventory to save data:
-                inventoryItems.guessedPassword = i;
+                gameData.guessedPassword = i;
             };
         }
         return {
@@ -461,7 +489,7 @@ let scenes = {
     },
     artifactChamberRejection: function () {
         function getRandomResult(index) {
-            if (index === randomPasswordIndex) {
+            if (index === gameData.randomPasswordIndex) {
                 return scenes.timeArtifact;
             }
             else {
@@ -499,7 +527,7 @@ let scenes = {
             },
         ];
         // Remove the option that was used in the previous scene:
-        options.splice(inventoryItems.guessedPassword, 1);
+        options.splice(gameData.guessedPassword, 1);
         return {
             title: `Infiltrating the castle - Artifact chamber - Access denied`,
             desc: `The door reacts disapprovingly, keeping itself shut while whispering “Access denied!”. Considering a final attempt to unlock this gate, you:`,
@@ -546,7 +574,7 @@ let scenes = {
                     scene: scenes.end,
                 }
             ],
-            backImg: "./img/inn.png"
+            backImg: "./img/innNight.png"
         };
     },
     keepStolenArtifact: function () {
@@ -575,7 +603,7 @@ let scenes = {
             options: [
                 {
                     text: "The end",
-                    scene: scenes.loadGame,
+                    scene: scenes.end,
                 }
             ],
             backImg: "./img/inn.png"
@@ -609,7 +637,7 @@ let scenes = {
             options: [
                 {
                     text: "The end",
-                    scene: scenes.loadGame,
+                    scene: scenes.end,
                 }
             ],
             backImg: "./img/villageNight.png"
@@ -621,7 +649,7 @@ let scenes = {
             desc: `Countering their offer with your demand to be paid at no hidden discount, they begrudgingly agree to a price sum double that of their initial proposal but still less than the quadruple increase you demanded.`,
             options: [
                 {
-                    text: "You won’t surrender to any half-baked macro-transaction, you only sell a possession such as this at full price.",
+                    text: "You won’t concede to any half-baked macro-transaction, you only sell a possession such as this at full price.",
                     scene: scenes.endingNofunnyIdeas,
                 },
                 {
@@ -632,15 +660,69 @@ let scenes = {
             backImg: "./img/villageNight.png"
         };
     },
-    end: function () {
+    todo: function () {
         return {
-            title: 'The End',
-            desc: 'Insert titles of last scenes',
+            title: `The Early Access Effect`,
+            desc: `We are very sorry but this game is still in development and this part of the story hasn't been finished yet!`,
             options: [
                 {
-                    text: "Return to main menu",
-                    scene: scenes.loadGame,
+                    text: "The end",
+                    scene: scenes.end,
+                },
+                {
+                    text: "New Game",
+                    scene: scenes.intro,
+                },
+            ],
+            backImg: "./img/mainBg.jpg"
+        };
+    },
+    end: function () {
+        let desc = "";
+        // Current games page count:
+        desc += "Story extent in pages: " + gameData.pageFlipCount + '\n';
+        // All games - page count:
+        desc += "Total pages turned for all games: " + gameData.statistics.totalPagesTurned + '\n';
+        // All games - started:
+        desc += "Total games started: " + gameData.statistics.gamesStarted + '\n';
+        // All games - finished:
+        desc += "Total games finished: " + gameData.statistics.gamesCompleted + '\n';
+        // Final scenes (counts of endings):
+        desc += "\nEndings:";
+        let finalScenes = Object.keys(gameData.statistics.finalScenes);
+        for (let finalSceneId of finalScenes) {
+            let count = gameData.statistics.finalScenes[finalSceneId];
+            let sceneFunction = getSceneFunction(finalSceneId);
+            if (sceneFunction && sceneFunction !== scenes.end) {
+                let scene = sceneFunction();
+                let title = scene.title;
+                let times = "time";
+                if (count > 1) {
+                    times += "s";
                 }
+                desc += "\n" + title + ": " + count + " " + times;
+            }
+            else {
+                console.warn(`Final scene stats include invalid sceneId "${finalSceneId}".`);
+            }
+        }
+        return {
+            title: 'The End',
+            desc,
+            options: [
+                {
+                    text: "New Game",
+                    scene: scenes.intro,
+                },
+                {
+                    text: "Clear statistics",
+                    scene: scenes.end,
+                    sideEffects: function () {
+                        gameData.pageFlipCount = 0;
+                        let defaultStats = generateGameData().statistics;
+                        gameData.statistics = defaultStats;
+                    },
+                },
             ],
             backImg: "./img/mainBg.jpg"
         };
@@ -655,6 +737,7 @@ function getSceneId(sceneFunction) {
     }
     return null;
 }
+/** Get the function that generates the scene specified by an id. */
 function getSceneFunction(sceneId) {
     let sceneFunction = scenes[sceneId];
     if (sceneFunction)
@@ -718,28 +801,107 @@ function runInDeno(sceneFunction) {
         sceneFunction = selectedOption.scene;
     }
 }
-/** Get a random element in an array. */
-function chooseRandomElement(array) {
-    if (array.length === 0) {
-        throw new Error('Array must contain at least 1 element');
-    }
-    return array[Math.floor(Math.random() * array.length)];
-}
-let randomDungeonsScene;
-let randomPasswordIndex = 0;
-function save(data) {
+/** Transfrom a GameData object into a string and save it to the browser. */
+function save(gameData) {
     try {
-        localStorage.setItem('saveData', JSON.stringify(data));
+        /** Turn any functions inside the object into strings using getSceneId. */
+        function makeSaveData(obj) {
+            let saveData = {};
+            for (let key of Object.keys(obj)) {
+                let value = obj[key];
+                if (typeof value === 'function') {
+                    // Store functions as strings:
+                    let sceneId = getSceneId(value);
+                    if (!sceneId) {
+                        throw new Error(`Failed to save the scene stored in "${key}" since its scene id could not be determined.`);
+                    }
+                    saveData[key] = sceneId;
+                }
+                else if (typeof value === 'object') {
+                    if (!value) {
+                        // Don't save null or undefined.
+                        continue;
+                    }
+                    // Process any nested objects as well:
+                    saveData[key] = makeSaveData(value);
+                }
+                else {
+                    // Otherwise just store the value as it is:
+                    saveData[key] = value;
+                }
+            }
+            return saveData;
+        }
+        let saveText = JSON.stringify(makeSaveData(gameData));
+        localStorage.setItem('saveData', saveText);
     }
     catch (error) {
-        console.log("Can't save data: ", error);
+        console.error("Can't save data: ", error);
     }
 }
+/** Get save data from the browser as a string and transform it into a valid GameData object. */
 function load() {
     try {
         let loaded = localStorage.getItem('saveData');
         if (loaded) {
-            return JSON.parse(loaded);
+            // Convert loaded string to an object:
+            let objectLoadedFromJsonString = JSON.parse(loaded);
+            // Get some valid game data that can be updated:
+            let gameData = generateGameData();
+            /**Updates game data objects from loaded data.
+             *
+             * Functions in the game data should be represented as strings in the loaded data. */
+            function updateGameData(validGameData, loadedData) {
+                for (let key of Object.keys(validGameData)) {
+                    let originalValue = validGameData[key];
+                    let expectedType = typeof originalValue;
+                    let loadedValue = loadedData[key];
+                    let loadedType = typeof loadedValue;
+                    if (expectedType === 'function') {
+                        if (loadedType !== 'string') {
+                            throw new Error(`Loaded data was corrupt at "${key}", game data scene should be represented by string but was represented by: ` + loadedType);
+                        }
+                        let sceneFunction = getSceneFunction(loadedValue);
+                        if (!sceneFunction) {
+                            throw new Error(`Loaded data was corrupt at "${key}", failed to find scene with the id ` + loadedValue);
+                        }
+                        validGameData[key] = sceneFunction;
+                    }
+                    else if (loadedType === expectedType) {
+                        if (expectedType === 'object') {
+                            if (!originalValue || !loadedValue) {
+                                // Ignore null or undefined.
+                                continue;
+                            }
+                            // This key stores a nested object, update that the same way:
+                            updateGameData(originalValue, loadedValue);
+                        }
+                        else {
+                            if (expectedType === 'number') {
+                                if (isNaN(loadedValue)) {
+                                    // Ignore NaN numbers (we probably can't use them correctly anyway):
+                                    continue;
+                                }
+                            }
+                            validGameData[key] = loadedValue;
+                        }
+                    }
+                    else {
+                        throw new Error(`Loaded data was corrupt at "${key}", expected type ${expectedType} but found ${loadedType}`);
+                    }
+                }
+                // Add any new keys to the object:
+                for (let loadedKey of Object.keys(loadedData)) {
+                    if (validGameData[loadedKey] === undefined) {
+                        // New key that doesn't exist in valid game data. New keys should not cause problems for game code:
+                        validGameData[loadedKey] = loadedData[loadedKey];
+                    }
+                }
+            }
+            // Update valid game data with loaded data:
+            updateGameData(gameData, objectLoadedFromJsonString);
+            // Return the updated game data:
+            return gameData;
         }
         else {
             return null;
@@ -750,58 +912,35 @@ function load() {
         return null;
     }
 }
-function restoreStateFromSaveData(data) {
-    inventory.fromSaveData(data.inventory);
-    pageFlipCount = data.pageFlipCount;
-    if (isNaN(pageFlipCount)) {
-        pageFlipCount = 1;
-    }
-    randomPasswordIndex = data.randomPasswordIndex;
-    let sceneFunction = getSceneFunction(data.randomDungenonsScene);
-    if (!sceneFunction)
-        throw new Error(`Can't load save data`);
-    randomDungeonsScene = sceneFunction;
-}
-/** Just true when first starting the game. */
+/** Only true when starting the game right after the page has loaded. */
 let firstFlip = true;
 /** A number that is unique to the current scene, ensures options are always related to the current scene. */
 let sceneUniqueId = 0;
-/** Used to update page numbers. */
-let pageFlipCount = 0;
 /** If true then we are currently animating the book, do not allow another option to be selected yet. */
 let flipAnimationInProgress = false;
 /** The user made a choice while animation was playing, apply as soon as possible. */
 let latestOptionChoice = null;
-/** The div tag that contains the current scene's background image. */
+/** The div tag that contains the current scene's background image. Used to transition smoothly between background images. */
 let currentBackgroundImage = null;
 /** Make a choice based on a keyboard event. */
 let keyboardHandler = null;
 function runInBrowser(sceneFunction) {
+    // Any previous choices are not valid for the new scene:
     latestOptionChoice = null;
+    // Ensure we keep game data updated:
+    gameData.scene = sceneFunction;
     if (sceneFunction === scenes.intro) {
-        // New Game setup:
-        randomPasswordIndex = Math.floor(Math.random() * 5);
-        randomDungeonsScene = chooseRandomElement([scenes.dungeonsDesolate, scenes.dungeonsSpiders]);
+        // Reset all game data when going back to first scene:
+        let stats = gameData.statistics;
+        gameData = generateGameData();
+        // Keep stats:
+        gameData.statistics = stats;
+    }
+    if (sceneFunction === scenes.loadGame) {
+        // Main menu:        
+        gameData.pageFlipCount = 0;
     }
     let sceneId = getSceneId(sceneFunction);
-    if (sceneFunction !== scenes.loadGame) {
-        // Save game:
-        if (sceneId) {
-            let randomDungeonsSceneId = getSceneId(randomDungeonsScene);
-            if (!randomDungeonsSceneId)
-                throw new Error('Failed to save randomDungenonsScene');
-            save({
-                sceneId: sceneId,
-                inventory: inventory.toSaveData(),
-                pageFlipCount,
-                randomPasswordIndex,
-                randomDungenonsScene: randomDungeonsSceneId,
-            });
-        }
-        else {
-            console.error(`Failed to find scene id for current scene, can't save data.`);
-        }
-    }
     let scene = sceneFunction();
     scene.options = scene.options.filter(function (option) {
         if (option.enabled === undefined)
@@ -809,12 +948,74 @@ function runInBrowser(sceneFunction) {
         else
             return option.enabled;
     });
+    // Store stats about final scenes:
+    let isFinalScene = false;
+    for (let option of scene.options) {
+        if (option.scene == scenes.end) {
+            isFinalScene = true;
+        }
+    }
+    if (isFinalScene && sceneFunction !== scenes.loadGame && sceneFunction !== scenes.end) {
+        gameData.statistics.gamesCompleted++;
+        if (sceneId) {
+            if (gameData.statistics.finalScenes[sceneId] === undefined) {
+                gameData.statistics.finalScenes[sceneId] = 1;
+            }
+            else {
+                gameData.statistics.finalScenes[sceneId]++;
+            }
+        }
+        else {
+            console.error(`Can't remember final scene, can't get scene id.`);
+        }
+    }
+    if (sceneFunction !== scenes.loadGame) {
+        // Save game:
+        save(gameData);
+    }
+    /*if (sceneFunction === scenes.end) {
+        function createTable(chart: { options: { data: any; }; }){
+        let table = document.createElement("TABLE") as HTMLTableElement;
+        let row,header,cell1, cell2;
+        let data = chart.options.data;
+        table.style.border = "1px solid #000";
+        header = table.createTHead();
+        row = header.insertRow(0);
+        cell1 = row.insertCell(0);
+        cell2 = row.insertCell(1);
+        cell1.style.border = "1px solid #000";
+        cell2.style.border = "1px solid #000";
+        cell1.innerHTML = "<b>X-Value</b>";
+        cell2.innerHTML = "<b>Y-Value</b>";
+      
+        for(let i = 0; i < data.length; i++){
+          for(let j = 0; j< data[i].dataPoints.length; j++){
+            row = table.insertRow(1);
+            cell1 = row.insertCell(0);
+            cell2 = row.insertCell(1);
+            cell1.style.border = "1px solid #000";
+            cell2.style.border = "1px solid #000";
+      
+            cell1.innerHTML = data[i].dataPoints[j].x;
+            cell2.innerHTML = data[i].dataPoints[j].y;
+          }
+        }
+        document.getElementsByClassName(".side-2 .content .text")[0].appendChild(table);
+        }
+        }*/
+    sceneUniqueId++;
+    let currentSceneUniqueId = sceneUniqueId;
     /** Try to click on a certain option. */
     function chooseOption(option) {
         function applyChoise() {
             // Ensure we never press a button that isn't connected to the current scene:
             if (sceneUniqueId !== currentSceneUniqueId)
                 return;
+            if (sceneFunction === scenes.intro) {
+                // Pressed button in intro scene => Made at least one choice:
+                gameData.statistics.gamesStarted++;
+            }
+            gameData.statistics.totalPagesTurned++;
             if (option.sideEffects) {
                 option.sideEffects();
             }
@@ -841,11 +1042,9 @@ function runInBrowser(sceneFunction) {
         let option = scene.options[number];
         chooseOption(option);
     };
-    sceneUniqueId++;
-    let currentSceneUniqueId = sceneUniqueId;
-    let pageNum1 = pageFlipCount * 2 + 1;
-    let pageNum2 = pageFlipCount * 2 + 2;
-    pageFlipCount++;
+    let pageNum1 = gameData.pageFlipCount * 2 + 1;
+    let pageNum2 = gameData.pageFlipCount * 2 + 2;
+    gameData.pageFlipCount++;
     let pages = Array.from(document.querySelectorAll('.page'));
     let previousBackgroundImage = currentBackgroundImage;
     for (let image of Array.from(document.querySelectorAll('#background-images div'))) {
@@ -972,6 +1171,7 @@ function runInBrowser(sceneFunction) {
         firstFlip = false;
     }
 }
+/** Reset book animation. This will temporarily disable flipping animations and then ensure that the first page is visible. */
 function resetBookFlip() {
     try {
         document.body.classList.add('flipping-back');
@@ -989,8 +1189,13 @@ function resetBookFlip() {
         setTimeout(function () { document.body.classList.remove('flipping-back'); }, 20);
     }
 }
+/** Stores all game data that should be saved. */
+let gameData = generateGameData();
+/** Game data that was saved when page was first loaded. */
+let loadedGameData = null;
 if ('Deno' in window) {
     let Deno = window.Deno;
+    /** Check if a file exists. */
     const exists = async (filename) => {
         try {
             await Deno.stat(filename);
@@ -1008,6 +1213,7 @@ if ('Deno' in window) {
             }
         }
     };
+    // Validate background image urls:
     let checks = [];
     for (let sceneId of Object.keys(scenes)) {
         let sceneFunction = getSceneFunction(sceneId);
@@ -1027,9 +1233,8 @@ if ('Deno' in window) {
             }));
         }
     }
-    Promise.all(checks).catch(function () {
-        return null;
-    }).then(function () {
+    Promise.all(checks).then(function () {
+        // Run game in terminal:
         runInDeno(scenes.intro);
     });
 }
@@ -1041,17 +1246,11 @@ else {
         book.appendChild(page.cloneNode(true));
     }
     resetBookFlip();
-    let firstScene = scenes.intro;
-    let loadedSceneData = load();
-    if (loadedSceneData) {
-        let sceneFunction = getSceneFunction(loadedSceneData.sceneId);
-        if (sceneFunction) {
-            loadedSceneFunction = sceneFunction;
-            firstScene = scenes.loadGame;
-        }
-        else {
-            console.error(`Failed to load save data, couldn't find scene with id "${loadedSceneData.sceneId}".`);
-        }
+    // Load game data:
+    loadedGameData = load();
+    if (loadedGameData) {
+        // Always load stats:
+        gameData.statistics = loadedGameData.statistics;
     }
-    runInBrowser(firstScene);
+    runInBrowser(scenes.loadGame);
 }
