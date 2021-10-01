@@ -1,41 +1,13 @@
-/** Information about a scene including the options the player can choose from. */
-interface Scene {
-    /** A small title for the current scene. */
-    title: string,
-    /** The information text that describes the current scene. */
-    desc: string,
-    /** Alternatives that the player can choose from. */
-    options: Option[],
-    /** A URL to a background image that should be shown behind the book. */
-    backImg?: string,
-}
-/** An alternative that the user can choose. */
-interface Option {
-    /** Description for this choice. */
-    text: string,
-    /** The scene that should be switched to if this option is chosen. */
-    scene: () => Scene,
-    /** Option will only be shown if this is true, or if it isn't specified at all. */
-    enabled?: boolean,
-    /** Code to run if this option is chosen. */
-    sideEffects?: () => any,
-}
-
-/** A string that can only be one of the inventory items. */
-type InventoryItem = keyof GameData['inventory'];
-/** All game data that needs to be saved. */
-type GameData = ReturnType<typeof generateGameData>;
-
+"use strict";
 /** Get a random element in an array. */
-function chooseRandomElement<T>(array: T[]): T {
+function chooseRandomElement(array) {
     if (array.length === 0) {
         throw new Error('Array must contain at least 1 element');
     }
-    return array[Math.floor(Math.random() * array.length)]
+    return array[Math.floor(Math.random() * array.length)];
 }
-
 /**Creates a valid game data object.
- * 
+ *
  * Set up all game specific data, all of this data will be saved automatically. */
 function generateGameData() {
     // Just add new things to the returned object and they will be automatically saved.
@@ -71,38 +43,38 @@ function generateGameData() {
             gamesCompleted: 0,
             gamesStarted: 0,
             /** Each key is a sceneId for a final scene and the value of each key is the number of times that ending was encountered. */
-            finalScenes: ({} as any),
+            finalScenes: {},
         },
     };
 }
-
 /** Access or modify the inventory. */
 let inventory = {
-    add: function (item: InventoryItem) {
+    add: function (item) {
         gameData.inventory[item] = true;
     },
-    contains: function (item: InventoryItem): boolean {
+    contains: function (item) {
         return gameData.inventory[item];
     },
-    remove: function (item: InventoryItem) {
+    remove: function (item) {
         gameData.inventory[item] = false;
     },
 };
-
 let spiderKeyName = `1F`;
-function createArtifactChamberScene(isKnocking: boolean, justGotRejected: boolean): Scene {
+function createArtifactChamberScene(isKnocking, justGotRejected) {
     let isFinalGuess = gameData.passwordGuessesMade >= 1;
-    function getRandomResult(index: number): () => Scene {
+    function getRandomResult(index) {
         if (index === gameData.randomPasswordIndex) {
-            return scenes.timeArtifact
-        } else if (isFinalGuess) {
+            return scenes.timeArtifact;
+        }
+        else if (isFinalGuess) {
             // Battle?
             return scenes.todo;
-        } else {
+        }
+        else {
             return scenes.artifactChamberRejection;
         }
     }
-    let options: Option[] = [
+    let options = [
         {
             text: "Speak the password “Warped matter”.",
             scene: getRandomResult(0),
@@ -163,11 +135,11 @@ function createArtifactChamberScene(isKnocking: boolean, justGotRejected: boolea
         desc,
         options,
         backImg: "./img/gate.jpg",
-    }
+    };
 }
 let scenes = {
-    loadGame: function (): Scene {
-        let options: Option[] = [
+    loadGame: function () {
+        let options = [
             {
                 text: `New Game`,
                 scene: scenes.intro,
@@ -188,7 +160,6 @@ let scenes = {
                     gameData.scene = gameData.previousScene;
                     // Ensure we never forget stats:
                     gameData.statistics = stats;
-
                     loadedGameData = null;
                 },
             });
@@ -200,7 +171,7 @@ let scenes = {
             backImg: "./img/mainBg.jpg",
         };
     },
-    intro: function (): Scene {
+    intro: function () {
         return {
             title: 'Introduction',
             desc: `You’re a wizard in a group of adventures undertaking quests. When you awake in your inn one day, after a particularly gruelling quest, you find a letter claiming to be written by yourself even though you have no memory of writing such a thing. In the letter there is a strange artifact that can allegedly bring anyone who activates it back in time. The letter claims that you must go and retrieve the same artifact from where it was originally stored and then travel back in time to put together this letter in order for the space-time continuum to remain stable.`,
@@ -217,8 +188,7 @@ let scenes = {
             backImg: "./img/inn.png",
         };
     },
-
-    companions: function (): Scene {
+    companions: function () {
         return {
             title: `Companions`,
             desc: `Entering the bar in which the companions of yours reside, you hastily gather your party to announce the conspicuous quest. Given your history of embarking on many dangerous quests in this company before, it comes as no surprise that they’re willing to undertake this one right away. The letter addresses the location of the sought artifact, a great castle in the woods not too far from where you currently are, so that’s where you along with your companions will be heading next.`,
@@ -229,10 +199,9 @@ let scenes = {
                 }
             ],
             backImg: "./img/bar.jpg",
-        }
+        };
     },
-
-    avoidScam: function (): Scene {
+    avoidScam: function () {
         return {
             title: `Avoiding scams`,
             desc: `As you begin trying to interact with the artifact, running your fingers along the clock-like design, you quickly notice the room darkening and you can see the night sky through a window. Unless this is a powerful illusion then this artifact seems to have actually turned back time. So it wasn't really a trick, was it? Confounded with having your only reasonable expectations broken, you decide to:`,
@@ -255,8 +224,7 @@ let scenes = {
             backImg: "./img/innNight.png",
         };
     },
-
-    endingPhantomTrick: function (): Scene {
+    endingPhantomTrick: function () {
         return {
             title: `Ending - The phantom trick`,
             desc: `Convinced the quest is a treacherous waste of time, you move on, business as usual. Some time shortly thereafter, you’re approached by a cloaked figure, it turns dark and you feel no more.`,
@@ -266,10 +234,9 @@ let scenes = {
                     scene: scenes.end,
                 }
             ],
-        }
+        };
     },
-
-    castleEntry: function (): Scene {
+    castleEntry: function () {
         return {
             title: `Infiltrating the castle - Entry`,
             desc: `Once at the site, you notice two distinct ways of entering the castle. The front gate stands open but ominous shadows surround it, is there someone there? The dungeons is the other entrance, located in the midst of ruins nearby the castle, perhaps it can give you as well as anything else a stronger cover.`,
@@ -291,17 +258,16 @@ let scenes = {
                 }
             ],
             backImg: "./img/castleDay.png",
-        }
+        };
     },
-
-    entryInspection: function (): Scene {
-        let randomDungeonsInspection: string
+    entryInspection: function () {
+        let randomDungeonsInspection;
         if (gameData.randomDungeonsScene === scenes.dungeonsDesolate) {
-            randomDungeonsInspection = ' The dungeons quietly sound with dripping liquids.'
-        } else {
-            randomDungeonsInspection = ' The dungeons echo with many light footsteps in bursts.'
+            randomDungeonsInspection = ' The dungeons quietly sound with dripping liquids.';
         }
-
+        else {
+            randomDungeonsInspection = ' The dungeons echo with many light footsteps in bursts.';
+        }
         return {
             title: 'Infiltrating the castle - Inspection of entry',
             desc: `Taking the time not to run in blind, you listen very closely for any signs of what’s happening in there. You hear the sound of a faint breath and sense heat in irregular waves from the front gate.` + randomDungeonsInspection,
@@ -318,8 +284,7 @@ let scenes = {
             backImg: "./img/castleDay.png",
         };
     },
-
-    frontGate: function (): Scene {
+    frontGate: function () {
         return {
             title: 'Infiltrating the castle - Front gate',
             desc: `Determined to enter this place head on, your firm warrior Leroy charges ahead into the main hallway with a fierce battle cry!
@@ -332,7 +297,7 @@ let scenes = {
                 {
                     text: "Perform a tactical retreat.",
                     scene: scenes.dragonRetreat,
-                    sideEffects: function() {
+                    sideEffects: function () {
                         gameData.leroyGone = true;
                     },
                 }
@@ -340,8 +305,7 @@ let scenes = {
             backImg: "./img/frontgate.png",
         };
     },
-
-    dragonFight: function (): Scene {
+    dragonFight: function () {
         return {
             title: `Infiltrating the castle - Fight the dragon`,
             desc: `An intense fight breaks out, arrows fly and fireballs are hurled. It continues until you are near exhausted but finally the dragon lies dead. Hopefully no one heard that…
@@ -356,8 +320,7 @@ Anyways, time to continue onwards!`,
             backImg: "./img/frontgate.png",
         };
     },
-
-    dragonRetreat: function (): Scene {
+    dragonRetreat: function () {
         return {
             title: 'Infiltrating the castle - Flee the dragon',
             desc: `You shout “Run you fools!” and turn to seek shelter. Unfortunately Leroy doesn’t hear since he already charged right at the dragon. Your other companions seem to follow your lead however and are also turning to run away. Anyways, it is too late to change your mind now, Leroy will just have to save himself…
@@ -372,8 +335,7 @@ In the chaos that follows you find yourself deeper in the castle with your other
             backImg: "./img/frontgate.png",
         };
     },
-
-    dungeonsDesolate: function (): Scene {
+    dungeonsDesolate: function () {
         return {
             title: 'Infiltrating the castle - Dungeons',
             desc: `Committing to what appears to be a stealthier route, you go downwards towards the dimly lit and seemingly desolate dungeons. The treversal goes smoothly and you spot something different. Engravings on a wall, depicting an odd object on a throne in a rather vague frame. Regardless of what direction may be optimal at one point or another, you proceed to walk the only path before you now that doesn’t turn away from the castle’s chambers.`,
@@ -386,8 +348,7 @@ In the chaos that follows you find yourself deeper in the castle with your other
             backImg: "./img/hallway2.png",
         };
     },
-
-    dungeonsSpiders: function (): Scene {
+    dungeonsSpiders: function () {
         return {
             title: 'Infiltrating the castle - Dungeons',
             desc: `Committing to what appears to be a stealthier route, you go downwards towards the dimly lit and seemingly desolate dungeons. Your treversal here quickly uncovers a threat as a horde of monstrous spiders and other similarly toxic insects ambushes you from all sides! You rush the exit door but as you quickly uncover, it’s locked! May a key not be nearby? Intending to settle this matter one way or another, you:`,
@@ -395,29 +356,19 @@ In the chaos that follows you find yourself deeper in the castle with your other
                 {
                     text: "Venture back in search of a key.",
                     scene: scenes.dungeonsSpidersKey,
-                    sideEffects: function() {
+                    sideEffects: function () {
                         inventory.add("spiderKey");
                     },
                 },
                 {
                     text: "Station by the door to ward off incoming waves of hostiles.",
-                    scene: scenes.dungeonsHordeDefense,
+                    scene: scenes.todo,
                 },
             ],
             backImg: "./img/dungeon.png",
         };
     },
-
-    dungeonsHordeDefense: function(): Scene {
-        return {
-            title: `Infiltrating the castle - Dungeon hostilities - Hold this position`,
-            desc: ``,
-            options: [
-            ],
-        };
-    },
-
-    dungeonsSpidersKey: function (): Scene {
+    dungeonsSpidersKey: function () {
         return {
             title: 'Infiltrating the castle - Dungeon hostilities - Keys',
             desc: `In your frantic search for a means of exiting this quite literally dark place, you light the way both for exploration and for scorching foes with your fiery spells. Soon enough you do find a pair of keys and one of them appears appropriately old and rusty for this lock you seek to unlock, you return to the exit door with these items to try it. Click! The door opens and you swiftly enter to then shut the door behind you, locking it again to ensure that nothing sinister follows you from underground. Inspecting the other key you just found, you can see that it, aside from its silvery and cleaner appearance, has a small description that reads “${spiderKeyName}”. Without lingering any longer you proceed onwards.`,
@@ -430,14 +381,13 @@ In the chaos that follows you find yourself deeper in the castle with your other
             backImg: "./img/dungeon.png",
         };
     },
-
-    stairs: function (): Scene {
+    stairs: function () {
         let backImg = "./img/staircase2.png";
         if (gameData.previousScene === scenes.throneRoom) {
-            backImg = "./img/staircase.png"
+            backImg = "./img/staircase.png";
         }
         if (gameData.previousScene === scenes.library || scenes.libraryPast) {
-            backImg = "./img/staircase3.png"
+            backImg = "./img/staircase3.png";
         }
         return {
             title: `Infiltrating the castle - Stairs`,
@@ -457,10 +407,9 @@ In the chaos that follows you find yourself deeper in the castle with your other
                 }
             ],
             backImg,
-        }
+        };
     },
-
-    library: function (): Scene {
+    library: function () {
         return {
             title: 'Infiltrating the castle - Library',
             desc: `This chamber is filled with books in vast shelves. You suspect clues about the whereabouts of the artifact you’re looking for could be encountered among the historic section which should list what more unique items are stored here. Contemplating whether or not to go for whatever contents and risks that may be found here, you choose to proceed with:`,
@@ -477,16 +426,15 @@ In the chaos that follows you find yourself deeper in the castle with your other
             backImg: "./img/library.png",
         };
     },
-
-    libraryClues: function (): Scene { 
+    libraryClues: function () {
         let passwordHints = [
-        "It could be said that warped matter is at the heart of this matter.",
-        "Buying time to stop a key from turning is what it's for.",
-        "This justice is essential.",
-        "This power originates from another secretive art called “Portus” which unlike the time artifact also brings one back in space and seems connected with the construct of portals for better or worse.",
-        "parallel",
-    ];
-    let passwordHint = passwordHints[gameData.randomPasswordIndex];
+            "It could be said that warped matter is at the heart of this matter.",
+            "Buying time to stop a key from turning is what it's for.",
+            "This justice is essential.",
+            "This power originates from another secretive art called “Portus” which unlike the time artifact also brings one back in space and seems connected with the construct of portals for better or worse.",
+            "parallel",
+        ];
+        let passwordHint = passwordHints[gameData.randomPasswordIndex];
         return {
             title: 'Infiltrating the castle - Library - Clues',
             desc: `After having traversed the stil environment in a search for the right texts on their corresponding shelves, you attain a book titled “The Unique Entities of Castle Alzheim”, which details the nature of various items confined here including a time artifact. The time artifact is described as a warped matter capable of altering four-dimensional past timelines provided they’re justified in parallel formation and within its range of 24 hours which can’t be offseted. ${passwordHint}
@@ -509,8 +457,7 @@ In the chaos that follows you find yourself deeper in the castle with your other
             backImg: "./img/library.png",
         };
     },
-
-    libraryPast: function (): Scene {
+    libraryPast: function () {
         return {
             title: `A peculiar circumvention`,
             desc: `In an instant, the library shifts from a loud emerging battle to completely silent order. Now that you know of a present threat and the somewhat vague insights of the castle’s library, you hastily move away not to get caught in whatever crossfire that may transpire here.
@@ -518,15 +465,14 @@ In the chaos that follows you find yourself deeper in the castle with your other
             Just as you were about to leave, an approaching guard interrupts. To quickly bypass this you make yourself a distraction, turn back time again, and then sneak past while your previous self distracts the target. After successfully covering yourself you now arrive back at the staircases again`,
             options: [
                 {
-                text: "Continue",
-                scene: scenes.stairs,
+                    text: "Continue",
+                    scene: scenes.stairs,
                 }
             ],
             backImg: "./img/hallway.png"
         };
     },
-
-    throneRoom: function (): Scene {
+    throneRoom: function () {
         return {
             title: 'Infiltrating the castle - Throne room',
             desc: `The center of attention here is a locked chest upon a pedestal, you figure that to unlock the contraption some kind of puzzle must be solved. Observing your immediate surroundings with this in mind, you notice a pressure plate in the floor and step on it to discover that it moves the position of one mirror in the ceiling and the angle of another mirror by a window to deflect light onto one of the letters of an emblem engraved on the top of the chest’s lid with the word “Alzheim”.`,
@@ -544,8 +490,7 @@ In the chaos that follows you find yourself deeper in the castle with your other
             backImg: "./img/castleWideRoom.jpg",
         };
     },
-
-    throneRoomTreasure: function(): Scene {
+    throneRoomTreasure: function () {
         let passwordHints = [
             "warped",
             "time key",
@@ -565,20 +510,16 @@ In the chaos that follows you find yourself deeper in the castle with your other
             ],
         };
     },
-
-    artifactChamber: function (): Scene {
+    artifactChamber: function () {
         return createArtifactChamberScene(false, false);
     },
-
-    artifactChamberKnocking: function (): Scene {
+    artifactChamberKnocking: function () {
         return createArtifactChamberScene(true, false);
     },
-
-    artifactChamberRejection: function (): Scene {
+    artifactChamberRejection: function () {
         return createArtifactChamberScene(false, true);
     },
-
-    timeArtifact: function (): Scene {
+    timeArtifact: function () {
         return {
             title: 'Infiltrating the castle - Artifact:',
             desc: `The door reacts approvingly, opening itself while whispering “Access granted!”, now unveiling the contents. A vase of glass mounted on a frame of an elevated globe in a small thickly isolated room, containing a clock-like object within, identical to the one you received from the letter at the start - the time reversing artifact you were looking for, finally you have it at hand.`,
@@ -591,8 +532,7 @@ In the chaos that follows you find yourself deeper in the castle with your other
             backImg: "./img/gate.jpg",
         };
     },
-
-    gotThrough: function (): Scene {
+    gotThrough: function () {
         return {
             title: 'Got through',
             desc: `You and your companions quickly escape the castle and congratulate each other on another successful quest.${gameData.leroyGone ? ` Well except for Leroy that is, him you can't find anywhere. Perhaps he got so scared he quit being an adventurer? You might never know.` : ``}
@@ -611,8 +551,7 @@ ${gameData.leroyGone ? `Anyway, finally` : `Finally`} having reached the last st
             backImg: "./img/houseNight.png"
         };
     },
-
-    endingNoFunnyIdeas: function (): Scene {
+    endingNoFunnyIdeas: function () {
         return {
             title: 'Don’t get any funny ideas',
             desc: `You just take the letter with the requested artifact and put it back next to the bed that your past self is sleeping in. Feeling relieved to finally have put things back in order you, as well as your companions, leave the village to find new opportunities elsewhere. A couple of days later you can’t find the second time artifact anymore and you assume it has vanished into the time loop it came from. You aren’t disappointed, instead you are relieved to never again have to care about such random absurdities ever again. You are sure nothing bad could possibly come from not investigating these strange events and that no consequences will be had from this adventure.`,
@@ -625,8 +564,7 @@ ${gameData.leroyGone ? `Anyway, finally` : `Finally`} having reached the last st
             backImg: "./img/innNight.png"
         };
     },
-
-    keepStolenArtifact: function (): Scene {
+    keepStolenArtifact: function () {
         return {
             title: 'Ending - Keep the stolen artifact for yourself',
             desc: `You put your original time artifact, the one you got in the letter, back inside the letter and put it next to the bed that your past self is sleeping in. Feeling quite clever and hoping to keep your newly stolen artifact, you and your companions leave the village to find out what shenanigans you can get up to with this newly acquired power. You are sure the time loop will solve itself now that it, at least, has one time artifact.
@@ -645,8 +583,7 @@ ${gameData.leroyGone ? `Anyway, finally` : `Finally`} having reached the last st
             backImg: "./img/villageNight.png"
         };
     },
-
-    noTrouble: function (): Scene {
+    noTrouble: function () {
         return {
             title: 'No looking for trouble',
             desc: `Giving these strangers the time artifact as requested, they quickly leave and the troublesome situation seems to be fully resolved as expected. You go home.`,
@@ -659,8 +596,7 @@ ${gameData.leroyGone ? `Anyway, finally` : `Finally`} having reached the last st
             backImg: "./img/inn.png"
         };
     },
-
-    refuseStrangers: function(): Scene {
+    refuseStrangers: function () {
         return {
             title: `Refuse strangers`,
             desc: `They seem surprised at your stubborn rejection of their “help” and they call you greedy. They argue among themselves for a couple of minutes and then approach you again. They have decided to appeal towards your greed and offer you a sizable amount of gold if you just give them the time artifact.`,
@@ -678,11 +614,10 @@ ${gameData.leroyGone ? `Anyway, finally` : `Finally`} having reached the last st
                     scene: scenes.noDeal,
                 }
             ],
-            backImg: "./img/villageNight.png"  
+            backImg: "./img/villageNight.png"
         };
     },
-
-    paidDismissal: function (): Scene {
+    paidDismissal: function () {
         return {
             title: 'Paid dismissal',
             desc: `Pleased to strike a resolving deal, you exchange the time artifact for the promised sizable amount of gold. The cloaked strangers thank you for your cooperation and then disappear far from sight along with the time artifact. And so that was the end of that. You may or may not be happy, but more importantly, you are rich.`,
@@ -695,8 +630,7 @@ ${gameData.leroyGone ? `Anyway, finally` : `Finally`} having reached the last st
             backImg: "./img/villageNight.png"
         };
     },
-
-    artifactBlackmail: function (): Scene {
+    artifactBlackmail: function () {
         return {
             title: 'Ending - Keep the stolen artifact for yourself - Clever blackmail',
             desc: `Countering their offer with your demand to be paid at no hidden discount, they begrudgingly agree to a price sum double that of their initial proposal but still less than the quadruple increase you demanded.`,
@@ -713,8 +647,7 @@ ${gameData.leroyGone ? `Anyway, finally` : `Finally`} having reached the last st
             backImg: "./img/alley.png"
         };
     },
-
-    noDeal: function(): Scene {
+    noDeal: function () {
         return {
             title: `No deal`,
             desc: `Suddenly these scam artists don’t appear to feel so clever anymore with them now realizing that you realize their offerings can’t compare to the possession of a time artifact. However, they now also state, “We’ve been directed by the highest authority to only relinquish supreme power once this crisis is over, we aren’t leaving without this time artifact, hand it over and you will not now perish.”`,
@@ -731,24 +664,17 @@ ${gameData.leroyGone ? `Anyway, finally` : `Finally`} having reached the last st
             backImg: "./img/villageNight.png"
         };
     },
-
-    absolutes: function(): Scene {
+    absolutes: function () {
         return {
             title: `Absolutes`,
             desc: `Only second rate scam artists deals in absolutes, but now you too will play their game. In a fast flashing exchange of attacks, you emerge victorious as they've fallen with deeply scorched marks. You're safe, for now.
             
-            Given all these most suspicious change of events, you can only assume there's more to it, which together with your successful retainment of a time artifact will support your ability to unravel the truth behind the meddling conspiracy. There was this supposed organization called the time-correction beuro, but regardless of precisely who they are and what they really want with the time artifacts you're certain that this power serves a better use in your relatively benevolent hands, all should be revealed in duo time.`,
-            options: [
-                {
-                text: "The end",
-                scene: scenes.end,
-                }
-            ],
+            Given all these most suspicious change of events, you can only assume there's more to it, which together with your successful retainment of a time artifact will support the unraveling of the truth behind the meddling conspiracy, all should be revealed in duo time.`,
+            options: [],
             backImg: "./img/villageNight.png"
         };
     },
-
-    todo: function (): Scene {
+    todo: function () {
         return {
             title: `The Early Access Effect`,
             desc: `We are very sorry but this game is still in development and this part of the story hasn't been finished yet!`,
@@ -767,23 +693,18 @@ ${gameData.leroyGone ? `Anyway, finally` : `Finally`} having reached the last st
                 }
             ],
             backImg: "./img/mainBg.jpg"
-        }
+        };
     },
-
-    end: function (): Scene {
+    end: function () {
         let desc = "";
-
         // Current games page count:
         desc += "Story extent in pages: " + gameData.pageFlipCount + '\n';
-
         // All games - page count:
         desc += "Total pages turned for all games: " + gameData.statistics.totalPagesTurned + '\n';
-
         // All games - started:
         desc += "Total games started: " + gameData.statistics.gamesStarted + '\n';
         // All games - finished:
         desc += "Total games finished: " + gameData.statistics.gamesCompleted + '\n';
-
         // Final scenes (counts of endings):
         desc += "\nEndings:";
         let finalScenes = Object.keys(gameData.statistics.finalScenes);
@@ -798,7 +719,8 @@ ${gameData.leroyGone ? `Anyway, finally` : `Finally`} having reached the last st
                     times += "s";
                 }
                 desc += "\n" + title + ": " + count + " " + times;
-            } else {
+            }
+            else {
                 console.warn(`Final scene stats include invalid sceneId "${finalSceneId}".`);
             }
         }
@@ -821,53 +743,51 @@ ${gameData.leroyGone ? `Anyway, finally` : `Finally`} having reached the last st
                 },
             ],
             backImg: "./img/mainBg.jpg"
-        }
+        };
     }
 };
-
 /** Get a scene's id as a string. */
-function getSceneId(sceneFunction: () => Scene): string | null {
+function getSceneId(sceneFunction) {
     for (let id of Object.keys(scenes)) {
-        if ((scenes as any)[id] === sceneFunction) {
+        if (scenes[id] === sceneFunction) {
             return id;
         }
     }
     return null;
 }
 /** Get the function that generates the scene specified by an id. */
-function getSceneFunction(sceneId: string): null | (() => Scene) {
-    let sceneFunction = (scenes as any)[sceneId];
-    if (sceneFunction) return sceneFunction;
-    else return null;
+function getSceneFunction(sceneId) {
+    let sceneFunction = scenes[sceneId];
+    if (sceneFunction)
+        return sceneFunction;
+    else
+        return null;
 }
-
-
-
 /** Run the game inside a terminal for some debugging. */
-function runInDeno(sceneFunction: () => Scene) {
+function runInDeno(sceneFunction) {
     while (true) {
         let scene = sceneFunction();
         scene.options = scene.options.filter(function (option) {
-            if (option.enabled === undefined) return true;
+            if (option.enabled === undefined)
+                return true;
             return option.enabled;
         });
-
         console.log('   ' + scene.title);
         console.log();
         console.log(scene.desc);
         console.log();
         if (scene.options.length === 1) {
-            console.log('Option:')
+            console.log('Option:');
         }
         else {
-            console.log('Options:')
+            console.log('Options:');
         }
         for (let i = 0; i < scene.options.length; i++) {
-            console.log(`${i + 1}. ${scene.options[i].text}`)
+            console.log(`${i + 1}. ${scene.options[i].text}`);
         }
         let inputText = prompt("");
-        if (inputText === null) continue;
-
+        if (inputText === null)
+            continue;
         if (inputText.startsWith("skip to ")) {
             let level = inputText.slice("skip to ".length);
             console.log(level);
@@ -883,15 +803,15 @@ function runInDeno(sceneFunction: () => Scene) {
             console.log("Current scene id: " + getSceneId(sceneFunction));
             continue;
         }
-
         let inputNumber = parseInt(inputText);
-        if (inputNumber === null || isNaN(inputNumber)) continue;
+        if (inputNumber === null || isNaN(inputNumber))
+            continue;
         inputNumber--;
-        if (inputNumber < 0) continue;
-        if (inputNumber >= scene.options.length) continue;
-
-        console.log(`You selected option: `, inputNumber)
-
+        if (inputNumber < 0)
+            continue;
+        if (inputNumber >= scene.options.length)
+            continue;
+        console.log(`You selected option: `, inputNumber);
         let selectedOption = scene.options[inputNumber];
         if (selectedOption.sideEffects) {
             selectedOption.sideEffects();
@@ -899,15 +819,12 @@ function runInDeno(sceneFunction: () => Scene) {
         sceneFunction = selectedOption.scene;
     }
 }
-
-
-
 /** Transfrom a GameData object into a string and save it to the browser. */
-function save(gameData: GameData) {
+function save(gameData) {
     try {
         /** Turn any functions inside the object into strings using getSceneId. */
-        function makeSaveData(obj: any): Object {
-            let saveData: any = {};
+        function makeSaveData(obj) {
+            let saveData = {};
             for (let key of Object.keys(obj)) {
                 let value = obj[key];
                 if (typeof value === 'function') {
@@ -917,14 +834,16 @@ function save(gameData: GameData) {
                         throw new Error(`Failed to save the scene stored in "${key}" since its scene id could not be determined.`);
                     }
                     saveData[key] = sceneId;
-                } else if (typeof value === 'object') {
+                }
+                else if (typeof value === 'object') {
                     if (!value) {
                         // Don't save null or undefined.
                         continue;
                     }
                     // Process any nested objects as well:
                     saveData[key] = makeSaveData(value);
-                } else {
+                }
+                else {
                     // Otherwise just store the value as it is:
                     saveData[key] = value;
                 }
@@ -933,12 +852,13 @@ function save(gameData: GameData) {
         }
         let saveText = JSON.stringify(makeSaveData(gameData));
         localStorage.setItem('saveData', saveText);
-    } catch (error) {
+    }
+    catch (error) {
         console.error("Can't save data: ", error);
     }
 }
 /** Get save data from the browser as a string and transform it into a valid GameData object. */
-function load(): GameData | null {
+function load() {
     try {
         let loaded = localStorage.getItem('saveData');
         if (loaded) {
@@ -946,19 +866,15 @@ function load(): GameData | null {
             let objectLoadedFromJsonString = JSON.parse(loaded);
             // Get some valid game data that can be updated:
             let gameData = generateGameData();
-
             /**Updates game data objects from loaded data.
              *
              * Functions in the game data should be represented as strings in the loaded data. */
-            function updateGameData(validGameData: any, loadedData: any) {
+            function updateGameData(validGameData, loadedData) {
                 for (let key of Object.keys(validGameData)) {
                     let originalValue = validGameData[key];
                     let expectedType = typeof originalValue;
-
                     let loadedValue = loadedData[key];
                     let loadedType = typeof loadedValue;
-
-
                     if (expectedType === 'function') {
                         if (loadedType !== 'string') {
                             throw new Error(`Loaded data was corrupt at "${key}", game data scene should be represented by string but was represented by: ` + loadedType);
@@ -968,7 +884,8 @@ function load(): GameData | null {
                             throw new Error(`Loaded data was corrupt at "${key}", failed to find scene with the id ` + loadedValue);
                         }
                         validGameData[key] = sceneFunction;
-                    } else if (loadedType === expectedType) {
+                    }
+                    else if (loadedType === expectedType) {
                         if (expectedType === 'object') {
                             if (!originalValue || !loadedValue) {
                                 // Ignore null or undefined.
@@ -976,7 +893,8 @@ function load(): GameData | null {
                             }
                             // This key stores a nested object, update that the same way:
                             updateGameData(originalValue, loadedValue);
-                        } else {
+                        }
+                        else {
                             if (expectedType === 'number') {
                                 if (isNaN(loadedValue)) {
                                     // Ignore NaN numbers (we probably can't use them correctly anyway):
@@ -985,7 +903,8 @@ function load(): GameData | null {
                             }
                             validGameData[key] = loadedValue;
                         }
-                    } else {
+                    }
+                    else {
                         throw new Error(`Loaded data was corrupt at "${key}", expected type ${expectedType} but found ${loadedType}`);
                     }
                 }
@@ -1001,16 +920,16 @@ function load(): GameData | null {
             updateGameData(gameData, objectLoadedFromJsonString);
             // Return the updated game data:
             return gameData;
-        } else {
+        }
+        else {
             return null;
         }
-    } catch (error) {
+    }
+    catch (error) {
         console.error("Can't load save data: ", error);
         return null;
     }
 }
-
-
 /** Only true when starting the game right after the page has loaded. */
 let firstFlip = true;
 /** A number that is unique to the current scene, ensures options are always related to the current scene. */
@@ -1018,19 +937,17 @@ let sceneUniqueId = 0;
 /** If true then we are currently animating the book, do not allow another option to be selected yet. */
 let flipAnimationInProgress = false;
 /** The user made a choice while animation was playing, apply as soon as possible. */
-let latestOptionChoice: (() => any) | null = null;
+let latestOptionChoice = null;
 /** The div tag that contains the current scene's background image. Used to transition smoothly between background images. */
-let currentBackgroundImage: Element | null = null;
+let currentBackgroundImage = null;
 /** Make a choice based on a keyboard event. */
-let keyboardHandler: ((event: KeyboardEvent) => any) | null = null;
-
-function runInBrowser(sceneFunction: () => Scene) {
+let keyboardHandler = null;
+function runInBrowser(sceneFunction) {
     // Any previous choices are not valid for the new scene:
     latestOptionChoice = null;
     // Ensure we keep game data updated:
     gameData.previousScene = gameData.scene;
     gameData.scene = sceneFunction;
-
     if (sceneFunction === scenes.intro) {
         // Reset all game data when going back to first scene:
         let stats = gameData.statistics;
@@ -1042,17 +959,14 @@ function runInBrowser(sceneFunction: () => Scene) {
         // Main menu:        
         gameData.pageFlipCount = 0;
     }
-
-
     let sceneId = getSceneId(sceneFunction);
     let scene = sceneFunction();
     scene.options = scene.options.filter(function (option) {
-        if (option.enabled === undefined) return true;
-        else return option.enabled;
+        if (option.enabled === undefined)
+            return true;
+        else
+            return option.enabled;
     });
-
-
-
     // Store stats about final scenes:
     let isFinalScene = false;
     for (let option of scene.options) {
@@ -1067,64 +981,58 @@ function runInBrowser(sceneFunction: () => Scene) {
         }
         if (sceneId) {
             if (gameData.statistics.finalScenes[sceneId] === undefined) {
-                gameData.statistics.finalScenes[sceneId] = 1
-            } else {
+                gameData.statistics.finalScenes[sceneId] = 1;
+            }
+            else {
                 gameData.statistics.finalScenes[sceneId]++;
             }
-        } else {
+        }
+        else {
             console.error(`Can't remember final scene, can't get scene id.`);
         }
     }
-
-
-
     if (sceneFunction !== scenes.loadGame) {
         // Save game:
         save(gameData);
     }
-
-
     /*if (sceneFunction === scenes.end) {
         function createTable(chart: { options: { data: any; }; }){
-        let table = document.createElement("TABLE") as HTMLTableElement;    
+        let table = document.createElement("TABLE") as HTMLTableElement;
         let row,header,cell1, cell2;
         let data = chart.options.data;
-        table.style.border = "1px solid #000"; 
+        table.style.border = "1px solid #000";
         header = table.createTHead();
         row = header.insertRow(0);
         cell1 = row.insertCell(0);
         cell2 = row.insertCell(1);
-        cell1.style.border = "1px solid #000"; 
-        cell2.style.border = "1px solid #000"; 
-        cell1.innerHTML = "<b>X-Value</b>"; 
-        cell2.innerHTML = "<b>Y-Value</b>"; 
+        cell1.style.border = "1px solid #000";
+        cell2.style.border = "1px solid #000";
+        cell1.innerHTML = "<b>X-Value</b>";
+        cell2.innerHTML = "<b>Y-Value</b>";
       
         for(let i = 0; i < data.length; i++){
           for(let j = 0; j< data[i].dataPoints.length; j++){
             row = table.insertRow(1);
             cell1 = row.insertCell(0);
             cell2 = row.insertCell(1);
-            cell1.style.border = "1px solid #000"; 
-            cell2.style.border = "1px solid #000"; 
+            cell1.style.border = "1px solid #000";
+            cell2.style.border = "1px solid #000";
       
             cell1.innerHTML = data[i].dataPoints[j].x;
-            cell2.innerHTML = data[i].dataPoints[j].y; 
+            cell2.innerHTML = data[i].dataPoints[j].y;
           }
         }
         document.getElementsByClassName(".side-2 .content .text")[0].appendChild(table);
         }
         }*/
-
-
     sceneUniqueId++;
     let currentSceneUniqueId = sceneUniqueId;
-
     /** Try to click on a certain option. */
-    function chooseOption(option: Option) {
+    function chooseOption(option) {
         function applyChoice() {
             // Ensure we never press a button that isn't connected to the current scene:
-            if (sceneUniqueId !== currentSceneUniqueId) return;
-
+            if (sceneUniqueId !== currentSceneUniqueId)
+                return;
             if (sceneFunction === scenes.intro) {
                 // Pressed button in intro scene => Made at least one choice:
                 gameData.statistics.gamesStarted++;
@@ -1135,33 +1043,31 @@ function runInBrowser(sceneFunction: () => Scene) {
             }
             runInBrowser(option.scene);
         }
-
         // Ensure smooth animations:
         if (flipAnimationInProgress) {
             latestOptionChoice = applyChoice;
-        } else {
+        }
+        else {
             applyChoice();
         }
     }
     keyboardHandler = (event) => {
         let number = parseInt(event.key);
-        if (isNaN(number)) return;
+        if (isNaN(number))
+            return;
         // Array is 0 indexed not 1-indexed:
         number--;
-        if (number < 0) return;
-        if (number >= scene.options.length) return;
-
+        if (number < 0)
+            return;
+        if (number >= scene.options.length)
+            return;
         let option = scene.options[number];
         chooseOption(option);
     };
-
     let pageNum1 = gameData.pageFlipCount * 2 + 1;
     let pageNum2 = gameData.pageFlipCount * 2 + 2;
     gameData.pageFlipCount++;
-
     let pages = Array.from(document.querySelectorAll('.page'));
-
-
     let previousBackgroundImage = currentBackgroundImage;
     for (let image of Array.from(document.querySelectorAll('#background-images div'))) {
         if (!previousBackgroundImage) {
@@ -1176,59 +1082,56 @@ function runInBrowser(sceneFunction: () => Scene) {
             setTimeout(function () {
                 image.classList.add('fadeAway');
             }, 30);
-        } else {
+        }
+        else {
             // Ensure new image div is always after the one that is fading away:
             let backgroundImages = document.getElementById("background-images");
-            if (!backgroundImages) throw new Error("Can't get background-images");
+            if (!backgroundImages)
+                throw new Error("Can't get background-images");
             backgroundImages.appendChild(image);
-
             if (scene.backImg) {
                 image.setAttribute("style", `background-image: url(${scene.backImg});`);
-            } else {
+            }
+            else {
                 image.removeAttribute("style");
             }
-
             currentBackgroundImage = image;
             setTimeout(function () {
                 image.classList.remove('fadeAway');
             }, 20);
         }
     }
-
-
     /** Update the front of a certain page (this is the side of the page with the buttons on). */
-    function updateFrontside(page: Element) {
+    function updateFrontside(page) {
         let side = page.querySelector('.side-1');
-        if (!side) throw new Error(`Can't get side element`);
+        if (!side)
+            throw new Error(`Can't get side element`);
         if (sceneId) {
             side.setAttribute('data-scene-id', sceneId);
         }
-
         let pageNr = page.querySelector('.side-1 .pagenr');
-        if (!pageNr) throw new Error(`Can't find pageNr element`);
+        if (!pageNr)
+            throw new Error(`Can't find pageNr element`);
         pageNr.textContent = pageNum2.toString();
-
-
         // Mobile friendly text:
         let h2 = page.querySelector('.side-1 .content .pageTitle');
-        if (!h2) throw new Error('Cant find page title element');
+        if (!h2)
+            throw new Error('Cant find page title element');
         h2.textContent = scene.title;
-
         let p = page.querySelector('.side-1 .content .text');
-        if (!p) throw new Error('Cant find page text element');
+        if (!p)
+            throw new Error('Cant find page text element');
         p.textContent = scene.desc;
-
-
         let uiButtons = Array.from(page.querySelectorAll("button"));
         for (let button of uiButtons) {
             button.classList.add('unused');
             button.onclick = null;
         }
         for (let i = 0; i < scene.options.length; i++) {
-            if (uiButtons.length <= i) throw new Error(`Ran out of UI buttons. Need ${scene.options.length} button but only have ${uiButtons.length}.`)
+            if (uiButtons.length <= i)
+                throw new Error(`Ran out of UI buttons. Need ${scene.options.length} button but only have ${uiButtons.length}.`);
             let uiButton = uiButtons[i];
             let option = scene.options[i];
-
             uiButton.classList.remove('unused');
             uiButton.textContent = (i + 1).toString() + ". " + option.text;
             uiButton.onclick = function () {
@@ -1236,28 +1139,28 @@ function runInBrowser(sceneFunction: () => Scene) {
             };
         }
     }
-    function updateBackside(page: Element) {
+    function updateBackside(page) {
         let side = page.querySelector('.side-2');
-        if (!side) throw new Error(`Can't get side element`);
+        if (!side)
+            throw new Error(`Can't get side element`);
         if (sceneId) {
             side.setAttribute('data-scene-id', sceneId);
         }
-
         let h2 = page.querySelector('.side-2 .content .pageTitle');
-        if (!h2) throw new Error('Cant find page title element');
+        if (!h2)
+            throw new Error('Cant find page title element');
         h2.textContent = scene.title;
-
         let p = page.querySelector('.side-2 .content .text');
-        if (!p) throw new Error('Cant find page text element');
+        if (!p)
+            throw new Error('Cant find page text element');
         p.textContent = scene.desc;
-
         let pageNr = page.querySelector('.side-2 .pagenr');
-        if (!pageNr) throw new Error(`Can't find pageNr element`);
+        if (!pageNr)
+            throw new Error(`Can't find pageNr element`);
         pageNr.textContent = pageNum1.toString();
     }
     updateBackside(pages[1]);
     updateFrontside(pages[2]);
-
     /** Update the pages that are visible at the start and after we reset animations. */
     function updateFirstPages() {
         updateBackside(pages[0]);
@@ -1265,13 +1168,11 @@ function runInBrowser(sceneFunction: () => Scene) {
     }
     if (!firstFlip) {
         flipAnimationInProgress = true;
-        (window as any).flipNext();
-
+        window.flipNext();
         // After animation is done:
         setTimeout(function () {
             updateFirstPages();
             resetBookFlip();
-
             setTimeout(function () {
                 flipAnimationInProgress = false;
                 if (latestOptionChoice) {
@@ -1280,7 +1181,8 @@ function runInBrowser(sceneFunction: () => Scene) {
                 }
             }, 10);
         }, 1000);
-    } else {
+    }
+    else {
         document.addEventListener('keyup', function (event) {
             if (keyboardHandler) {
                 keyboardHandler(event);
@@ -1288,7 +1190,6 @@ function runInBrowser(sceneFunction: () => Scene) {
         });
         // Don't animate the initial page load:
         updateFirstPages();
-
         firstFlip = false;
     }
 }
@@ -1304,48 +1205,49 @@ function resetBookFlip() {
             page.classList.remove("flipped");
             page.classList.add("no-anim");
         }
-        (window as any).reorder();
-    } finally {
+        window.reorder();
+    }
+    finally {
         setTimeout(function () { document.body.classList.remove('flipping-back'); }, 20);
     }
 }
-
-
 /** Stores all game data that should be saved. */
 let gameData = generateGameData();
 /** Game data that was saved when page was first loaded. */
-let loadedGameData: null | GameData = null;
-
+let loadedGameData = null;
 if ('Deno' in window) {
-    let Deno = (window as any).Deno;
+    let Deno = window.Deno;
     /** Check if a file exists. */
-    const exists = async (filename: string): Promise<boolean> => {
+    const exists = async (filename) => {
         try {
             await Deno.stat(filename);
             // successful, file or directory must exist
             return true;
-        } catch (error) {
+        }
+        catch (error) {
             if (error instanceof Deno.errors.NotFound) {
                 // file or directory does not exist
                 return false;
-            } else {
+            }
+            else {
                 // unexpected error, maybe permissions, pass it along
                 throw error;
             }
         }
     };
-
     // Validate background image urls:
     let checks = [];
     for (let sceneId of Object.keys(scenes)) {
         let sceneFunction = getSceneFunction(sceneId);
-        if (!sceneFunction) continue;
+        if (!sceneFunction)
+            continue;
         let scene = sceneFunction();
         if (scene.backImg) {
             checks.push(exists(scene.backImg).then(function (fileExists) {
                 if (!fileExists) {
                     console.log(`--> Missing background image: `, scene.backImg);
-                } else {
+                }
+                else {
                     console.log(`Checked background image: `, scene.backImg);
                 }
             }).catch(function (error) {
@@ -1353,12 +1255,12 @@ if ('Deno' in window) {
             }));
         }
     }
-
     Promise.all(checks).then(function () {
         // Run game in terminal:
-        runInDeno(scenes.intro)
+        runInDeno(scenes.intro);
     });
-} else {
+}
+else {
     // Duplicate book pages:
     let book = document.getElementsByClassName("book")[0];
     for (let page of Array.from(book.querySelectorAll('.page'))) {
@@ -1366,12 +1268,11 @@ if ('Deno' in window) {
         book.appendChild(page.cloneNode(true));
     }
     resetBookFlip();
-
     // Load game data:
     loadedGameData = load();
     if (loadedGameData) {
         // Always load stats:
         gameData.statistics = loadedGameData.statistics;
     }
-    runInBrowser(scenes.loadGame)
+    runInBrowser(scenes.loadGame);
 }
