@@ -108,7 +108,7 @@ function createArtifactChamberScene(isKnocking, justGotRejected) {
             scene: scenes.stairs,
         },
     ];
-    options[gameData.randomPasswordIndex].text += ` [DEBUG: Correct]`;
+    // options[gameData.randomPasswordIndex].text += ` [DEBUG: Correct]`;
     // Remember the option that we click on:
     for (let i = 0; i < 5; i++) {
         options[i].sideEffects = function () {
@@ -398,7 +398,7 @@ In the chaos that follows you find yourself deeper in the castle with your other
         }
         return {
             title: `Infiltrating the castle - Stairs`,
-            desc: `${gameData.enteredDungeons ? "Having now exited the dungeons, y" : "Y"}ou stand before a set of stairs leading to three different floors. Potential points of interest on these floors are respectively a kitchen, a library and a hallway with many smaller rooms.`,
+            desc: `${gameData.enteredDungeons ? "Having now exited the dungeons, y" : "Y"}ou stand before a set of stairs leading to three different floors. Potential points of interest on these floors are respectively a throne room, a library and a hallway with many smaller rooms.`,
             options: [
                 {
                     text: "Explore first floor.",
